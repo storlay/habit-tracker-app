@@ -1,0 +1,53 @@
+{
+  "version": 1,
+  "skills": {
+    "frontend-dev-guidelines": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/frontend-dev-guidelines/SKILL.md",
+      "computedHash": "b1f1183bb089490302eca16b1495988b19bb2d6418b6dabc585f64976c61704f"
+    },
+    "frontend-developer": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/frontend-developer/SKILL.md",
+      "computedHash": "11b1be7121aa1a5395a9838b34532d88025acb2853c306fd18de25065547699a"
+    },
+    "frontend-security-coder": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/frontend-security-coder/SKILL.md",
+      "computedHash": "6f7d6a582812d55da9a12d5fff7523501d1ec500c8fde77f6f7b04ce86d1c569"
+    },
+    "javascript-pro": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/javascript-pro/SKILL.md",
+      "computedHash": "455b01f015d389f056b78d975af55d5b297a97319cc0331a0c6f4f40f2920baa"
+    },
+    "javascript-typescript-typescript-scaffold": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/javascript-typescript-typescript-scaffold/SKILL.md",
+      "computedHash": "670e217b2258e9fe0c210fc4c2e187e9dfd9a4bcdb48b2111607dd963ff7b9c1"
+    },
+    "plan-writing": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/plan-writing/SKILL.md",
+      "computedHash": "7b71feab40a6f633057cdb96dba8db05e16d2f6b6d99a492b4b48abf131e474a"
+    },
+    "react-native-architecture": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/react-native-architecture/SKILL.md",
+      "computedHash": "f8709fd6a17ea0d0ea4cb769d3ee01c02b1fe173ccd0d9d4bca9599397c56d23"
+    },
+    "react-ui-patterns": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/react-ui-patterns/SKILL.md",
+      "computedHash": "6cf16ff01d66cf827c99ea0fdd215e6f2a62b1999737baabc4a85fb8e28adf94"
+    }
+  }
+}
