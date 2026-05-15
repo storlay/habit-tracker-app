@@ -15,7 +15,7 @@ export function validateDraft(draft: HabitDraft): string | null {
   if (!isHabitType(draft.type)) return 'Неверный тип привычки';
   if (!isHexColor(draft.color)) return 'Неверный цвет';
   if (!draft.categoryId) return 'Выберите категорию';
-  if (draft.type !== 'binary' && (draft.target == null || draft.target < 1)) {
+  if (draft.type !== 'binary' && (!Number.isFinite(draft.target) || (draft.target as number) < 1)) {
     return 'Укажите цель';
   }
   return null;

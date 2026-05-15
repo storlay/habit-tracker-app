@@ -1,3 +1,8 @@
+import type { Ionicons } from '@expo/vector-icons';
+import type { ComponentProps } from 'react';
+
+export type IoniconName = ComponentProps<typeof Ionicons>['name'];
+
 export type HabitType = 'binary' | 'counter' | 'duration';
 
 export type Habit = {
@@ -8,7 +13,7 @@ export type Habit = {
   unit?: string;
   categoryId: string;
   color: string;
-  icon: string;
+  icon: IoniconName;
   weeklyGoal: number;
   reminder?: { hour: number; minute: number; days: number[] };
   notificationIds?: string[];
@@ -20,7 +25,7 @@ export type Category = {
   id: string;
   name: string;
   color: string;
-  icon: string;
+  icon: IoniconName;
 };
 
 export type Entry = {
