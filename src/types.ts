@@ -1,0 +1,40 @@
+export type HabitType = 'binary' | 'counter' | 'duration';
+
+export type Habit = {
+  id: string;
+  title: string;
+  type: HabitType;
+  target?: number;
+  unit?: string;
+  categoryId: string;
+  color: string;
+  icon: string;
+  weeklyGoal: number;
+  reminder?: { hour: number; minute: number; days: number[] };
+  notificationIds?: string[];
+  createdAt: string;
+  archived: boolean;
+};
+
+export type Category = {
+  id: string;
+  name: string;
+  color: string;
+  icon: string;
+};
+
+export type Entry = {
+  habitId: string;
+  date: string;
+  value: number;
+  completed: boolean;
+};
+
+export type EntriesMap = Record<string, Record<string, Entry>>;
+
+export type Settings = {
+  theme: 'system' | 'light' | 'dark';
+  weekStartsOn: 0 | 1;
+};
+
+export type HabitDraft = Omit<Habit, 'id' | 'createdAt' | 'archived' | 'notificationIds'>;
