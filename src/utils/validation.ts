@@ -18,5 +18,12 @@ export function validateDraft(draft: HabitDraft): string | null {
   if (draft.type !== 'binary' && (!Number.isFinite(draft.target) || (draft.target as number) < 1)) {
     return 'Укажите цель';
   }
+  if (draft.reminder) {
+    const { hour, minute, days } = draft.reminder;
+    if (!Number.isInteger(hour) || hour < 0 || hour > 23) return 'Неверный час напоминания';
+    if (!Number.isInteger(minute) || minute < 0 || minute > 59) return 'Неверная минута напоминания';
+    if (!Array.isArray(days) || days.length === 0) return 'Выберите дни напоминания';
+    if (days.some((d) => !Number.isInteger(d) || d < 0 || d > 6)) return 'Неверные дни напоминания';
+  }
   return null;
 }

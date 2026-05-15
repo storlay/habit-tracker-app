@@ -21,6 +21,7 @@ import type { Category, EntriesMap, Entry, Habit, HabitDraft } from '../types';
 import { uid } from '../utils/id';
 import { todayISO } from '../utils/date';
 import { validateDraft } from '../utils/validation';
+import { cancelIds, scheduleForHabit } from '../utils/notifications';
 
 type State = {
   habits: Habit[];
@@ -33,7 +34,6 @@ type Action =
   | { type: 'HYDRATE'; payload: Omit<State, 'hydrated'> }
   | { type: 'ADD_HABIT'; habit: Habit }
   | { type: 'EDIT_HABIT'; id: string; patch: Partial<Habit> }
-  | { type: 'ARCHIVE_HABIT'; id: string }
   | { type: 'ADD_CATEGORY'; category: Category }
   | { type: 'EDIT_CATEGORY'; id: string; patch: Partial<Category> }
   | { type: 'DELETE_CATEGORY'; id: string }
@@ -58,12 +58,6 @@ function reducer(state: State, action: Action): State {
       return {
         ...state,
         habits: state.habits.map((h) => (h.id === action.id ? { ...h, ...action.patch } : h)),
-      };
-
-    case 'ARCHIVE_HABIT':
-      return {
-        ...state,
-        habits: state.habits.map((h) => (h.id === action.id ? { ...h, archived: true } : h)),
       };
 
     case 'ADD_CATEGORY':
@@ -93,9 +87,9 @@ function reducer(state: State, action: Action): State {
 
 type ContextValue = {
   state: State;
-  addHabit: (draft: HabitDraft) => string | null;
-  editHabit: (id: string, patch: Partial<Habit>) => void;
-  archiveHabit: (id: string) => void;
+  addHabit: (draft: HabitDraft) => Promise<string | null>;
+  editHabit: (id: string, patch: Partial<Habit>) => Promise<void>;
+  archiveHabit: (id: string) => Promise<void>;
   addCategory: (input: Omit<Category, 'id'>) => string;
   editCategory: (id: string, patch: Partial<Category>) => void;
   deleteCategory: (id: string) => void;
@@ -142,27 +136,6 @@ export function HabitsProvider({ children }: { children: ReactNode }) {
     if (hydratedRef.current) void saveEntries(state.entries);
   }, [state.entries]);
 
-  const addHabit = useCallback((draft: HabitDraft): string | null => {
-    const err = validateDraft(draft);
-    if (err) return null;
-    const habit: Habit = {
-      ...draft,
-      id: uid(),
-      createdAt: new Date().toISOString(),
-      archived: false,
-    };
-    dispatch({ type: 'ADD_HABIT', habit });
-    return habit.id;
-  }, []);
-
-  const editHabit = useCallback((id: string, patch: Partial<Habit>) => {
-    dispatch({ type: 'EDIT_HABIT', id, patch });
-  }, []);
-
-  const archiveHabit = useCallback((id: string) => {
-    dispatch({ type: 'ARCHIVE_HABIT', id });
-  }, []);
-
   const addCategory = useCallback((input: Omit<Category, 'id'>) => {
     const category: Category = { ...input, id: uid() };
     dispatch({ type: 'ADD_CATEGORY', category });
@@ -194,6 +167,48 @@ export function HabitsProvider({ children }: { children: ReactNode }) {
       setEntry(habitId, date, current > 0 ? 0 : 1);
     };
 
+    const addHabit: ContextValue['addHabit'] = async (draft) => {
+      if (validateDraft(draft)) return null;
+      const habit: Habit = {
+        ...draft,
+        id: uid(),
+        createdAt: new Date().toISOString(),
+        archived: false,
+      };
+      const ids = await scheduleForHabit(habit).catch((e: unknown) => { console.warn('notifications schedule failed', e); return [] as string[]; });
+      dispatch({
+        type: 'ADD_HABIT',
+        habit: { ...habit, notificationIds: ids.length ? ids : undefined },
+      });
+      return habit.id;
+    };
+
+    const editHabit: ContextValue['editHabit'] = async (id, patch) => {
+      const current = state.habits.find((h) => h.id === id);
+      if (!current) return;
+      const merged: Habit = { ...current, ...patch };
+      const reminderChanged =
+        JSON.stringify(current.reminder) !== JSON.stringify(merged.reminder);
+      const titleChanged = current.title !== merged.title;
+      if (!reminderChanged && !titleChanged) {
+        dispatch({ type: 'EDIT_HABIT', id, patch });
+        return;
+      }
+      await cancelIds(current.notificationIds).catch((e: unknown) => { console.warn('notifications cancel failed', e); });
+      const ids = await scheduleForHabit(merged).catch((e: unknown) => { console.warn('notifications schedule failed', e); return [] as string[]; });
+      dispatch({
+        type: 'EDIT_HABIT',
+        id,
+        patch: { ...patch, notificationIds: ids.length ? ids : undefined },
+      });
+    };
+
+    const archiveHabit: ContextValue['archiveHabit'] = async (id) => {
+      const current = state.habits.find((h) => h.id === id);
+      await cancelIds(current?.notificationIds).catch((e: unknown) => { console.warn('notifications cancel failed', e); });
+      dispatch({ type: 'EDIT_HABIT', id, patch: { archived: true, notificationIds: undefined } });
+    };
+
     return {
       state,
       addHabit,
@@ -205,7 +220,7 @@ export function HabitsProvider({ children }: { children: ReactNode }) {
       setEntry,
       toggleBinary,
     };
-  }, [state, addHabit, editHabit, archiveHabit, addCategory, editCategory, deleteCategory]);
+  }, [state, addCategory, editCategory, deleteCategory]);
 
   return <HabitsContext.Provider value={value}>{children}</HabitsContext.Provider>;
 }

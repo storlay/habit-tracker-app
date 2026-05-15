@@ -65,7 +65,7 @@ export function periodDays(period: Period): number {
   return PERIOD_DAYS[period];
 }
 
-const DOW_SHORT = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
+export const DOW_SHORT = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
 
 export function aggregate(habit: Habit, entries: EntriesByDate, period: Period): BucketPoint[] {
   const days = lastNDaysISO(PERIOD_DAYS[period]);

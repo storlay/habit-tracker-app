@@ -1,10 +1,14 @@
 import { Ionicons } from '@expo/vector-icons';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { format } from 'date-fns';
 import { useState } from 'react';
 import {
   Alert,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
+  Switch,
   Text,
   TextInput,
   View,
@@ -14,6 +18,8 @@ import { HABIT_ICONS, type IoniconName } from '../constants/icons';
 import { useHabits } from '../context/HabitsContext';
 import type { HabitFormProps } from '../navigation/types';
 import type { HabitDraft, HabitType } from '../types';
+import { requestPermissions } from '../utils/notifications';
+import { DOW_SHORT } from '../utils/stats';
 import { validateDraft } from '../utils/validation';
 
 const TYPES: { value: HabitType; label: string }[] = [
@@ -21,6 +27,17 @@ const TYPES: { value: HabitType; label: string }[] = [
   { value: 'counter', label: 'Счётчик' },
   { value: 'duration', label: 'Время' },
 ];
+
+const DAY_OPTIONS: { label: string; value: number }[] = [1, 2, 3, 4, 5, 6, 0].map((v) => ({
+  label: DOW_SHORT[v],
+  value: v,
+}));
+
+function initialTime(reminder: { hour: number; minute: number } | undefined): Date {
+  const d = new Date();
+  d.setHours(reminder?.hour ?? 9, reminder?.minute ?? 0, 0, 0);
+  return d;
+}
 
 export default function HabitFormScreen({ route, navigation }: HabitFormProps) {
   const { state, addHabit, editHabit, archiveHabit } = useHabits();
@@ -37,9 +54,44 @@ export default function HabitFormScreen({ route, navigation }: HabitFormProps) {
   const [color, setColor] = useState(editing?.color ?? HABIT_COLORS[0]);
   const [icon, setIcon] = useState<IoniconName>(editing?.icon ?? HABIT_ICONS[0]);
   const [weeklyGoal, setWeeklyGoal] = useState(editing?.weeklyGoal ?? 7);
+  const [reminderEnabled, setReminderEnabled] = useState(!!editing?.reminder);
+  const [reminderTime, setReminderTime] = useState<Date>(() => initialTime(editing?.reminder));
+  const [reminderDays, setReminderDays] = useState<number[]>(
+    editing?.reminder?.days ?? [1, 2, 3, 4, 5],
+  );
+  const [showPicker, setShowPicker] = useState(false);
+  const [saving, setSaving] = useState(false);
 
-  const onSave = () => {
+  const onToggleReminder = async (next: boolean) => {
+    if (next) {
+      const ok = await requestPermissions();
+      if (!ok) {
+        Alert.alert('Нет разрешения', 'Разрешите уведомления в настройках устройства');
+        return;
+      }
+    }
+    setReminderEnabled(next);
+  };
+
+  const toggleDay = (n: number) => {
+    setReminderDays((prev) =>
+      prev.includes(n) ? prev.filter((d) => d !== n) : [...prev, n],
+    );
+  };
+
+  const onSave = async () => {
+    if (reminderEnabled && reminderDays.length === 0) {
+      Alert.alert('Проверьте форму', 'Выберите хотя бы один день для напоминания');
+      return;
+    }
     const parsedTarget = target.trim() ? Number(target) : undefined;
+    const reminder = reminderEnabled
+      ? {
+          hour: reminderTime.getHours(),
+          minute: reminderTime.getMinutes(),
+          days: [...reminderDays].sort((a, b) => a - b),
+        }
+      : undefined;
     const draft: HabitDraft = {
       title: title.trim(),
       type,
@@ -49,22 +101,28 @@ export default function HabitFormScreen({ route, navigation }: HabitFormProps) {
       color,
       icon,
       weeklyGoal,
+      reminder,
     };
     const err = validateDraft(draft);
     if (err) {
       Alert.alert('Проверьте форму', err);
       return;
     }
-    if (editing) {
-      editHabit(editing.id, draft);
-    } else {
-      const id = addHabit(draft);
-      if (!id) {
-        Alert.alert('Ошибка', 'Не удалось сохранить');
-        return;
+    setSaving(true);
+    try {
+      if (editing) {
+        await editHabit(editing.id, draft);
+      } else {
+        const id = await addHabit(draft);
+        if (!id) {
+          Alert.alert('Ошибка', 'Не удалось сохранить');
+          return;
+        }
       }
+      navigation.goBack();
+    } finally {
+      setSaving(false);
     }
-    navigation.goBack();
   };
 
   const onArchive = () => {
@@ -194,9 +252,58 @@ export default function HabitFormScreen({ route, navigation }: HabitFormProps) {
         </View>
       </Field>
 
+      <View style={styles.field}>
+        <View style={styles.reminderHeader}>
+          <Text style={styles.label}>Напоминание</Text>
+          <Switch value={reminderEnabled} onValueChange={onToggleReminder} />
+        </View>
+        {reminderEnabled ? (
+          <View style={styles.reminderBody}>
+            {Platform.OS === 'ios' ? (
+              <DateTimePicker
+                mode="time"
+                value={reminderTime}
+                onChange={(_, d) => d && setReminderTime(d)}
+              />
+            ) : (
+              <>
+                <Pressable
+                  onPress={() => setShowPicker(true)}
+                  style={styles.timeBtn}
+                >
+                  <Text style={styles.timeBtnText}>{format(reminderTime, 'HH:mm')}</Text>
+                </Pressable>
+                {showPicker ? (
+                  <DateTimePicker
+                    mode="time"
+                    value={reminderTime}
+                    is24Hour
+                    onChange={(_, d) => {
+                      setShowPicker(false);
+                      if (d) setReminderTime(d);
+                    }}
+                  />
+                ) : null}
+              </>
+            )}
+            <View style={styles.row}>
+              {DAY_OPTIONS.map((d) => (
+                <Chip
+                  key={d.value}
+                  label={d.label}
+                  selected={reminderDays.includes(d.value)}
+                  onPress={() => toggleDay(d.value)}
+                />
+              ))}
+            </View>
+          </View>
+        ) : null}
+      </View>
+
       <Pressable
         onPress={onSave}
-        style={[styles.saveBtn, { backgroundColor: color }]}
+        disabled={saving}
+        style={[styles.saveBtn, { backgroundColor: color, opacity: saving ? 0.6 : 1 }]}
       >
         <Text style={styles.saveBtnText}>{editing ? 'Сохранить' : 'Создать'}</Text>
       </Pressable>
@@ -282,6 +389,22 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: '#fff',
   },
+  reminderHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  reminderBody: { gap: 12 },
+  timeBtn: {
+    alignSelf: 'flex-start',
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    backgroundColor: '#fff',
+  },
+  timeBtnText: { fontSize: 16, color: '#0f172a', fontVariant: ['tabular-nums'] },
   saveBtn: {
     marginTop: 8,
     paddingVertical: 14,
