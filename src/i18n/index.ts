@@ -11,7 +11,7 @@ export type SupportedLanguage = (typeof SUPPORTED_LANGUAGES)[number];
 
 const FALLBACK: SupportedLanguage = 'ru';
 
-function detectSystemLanguage(): SupportedLanguage {
+export function detectSystemLanguage(): SupportedLanguage {
   const code = getLocales()[0]?.languageCode;
   return (SUPPORTED_LANGUAGES as readonly string[]).includes(code ?? '')
     ? (code as SupportedLanguage)

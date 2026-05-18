@@ -29,9 +29,17 @@ const WEEK_OPTIONS: { value: Settings['weekStartsOn']; label: string }[] = [
   { value: 0, label: 'Воскресенье' },
 ];
 
+const LANGUAGE_OPTIONS: { value: Settings['language']; label: string }[] = [
+  { value: 'system', label: 'Системный' },
+  { value: 'ru', label: 'Русский' },
+  { value: 'en', label: 'English' },
+  { value: 'es', label: 'Español' },
+  { value: 'de', label: 'Deutsch' },
+];
+
 export default function SettingsScreen() {
   const { colors } = useTheme();
-  const { settings, setTheme, setWeekStartsOn } = useSettings();
+  const { settings, setTheme, setWeekStartsOn, setLanguage } = useSettings();
   const { state } = useHabits();
 
   const onExport = async () => {
@@ -108,6 +116,34 @@ export default function SettingsScreen() {
                   ]}
                 >
                   {w.label}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </View>
+      </Section>
+
+      <Section title="Язык">
+        <View style={styles.row}>
+          {LANGUAGE_OPTIONS.map((l) => {
+            const active = settings.language === l.value;
+            return (
+              <Pressable
+                key={l.value}
+                onPress={() => setLanguage(l.value)}
+                style={[
+                  styles.weekBtn,
+                  { borderColor: colors.border, backgroundColor: colors.surface },
+                  active && { backgroundColor: colors.primary, borderColor: colors.primary },
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.weekBtnText,
+                    { color: active ? '#fff' : colors.text },
+                  ]}
+                >
+                  {l.label}
                 </Text>
               </Pressable>
             );

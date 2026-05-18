@@ -40,6 +40,7 @@ export type EntriesMap = Record<string, Record<string, Entry>>;
 export type Settings = {
   theme: 'system' | 'light' | 'dark';
   weekStartsOn: 0 | 1;
+  language: 'system' | 'ru' | 'en' | 'es' | 'de';
 };
 
 export type HabitDraft = Omit<Habit, 'id' | 'createdAt' | 'archived' | 'notificationIds'>;

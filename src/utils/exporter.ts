@@ -21,10 +21,13 @@ export function exportPayload(p: Payload): string {
   return JSON.stringify(safe, null, 2);
 }
 
+const LANGUAGES: Settings['language'][] = ['system', 'ru', 'en', 'es', 'de'];
+
 function pickSettings(s: Settings): Settings {
   return {
     theme: s.theme === 'light' || s.theme === 'dark' ? s.theme : 'system',
     weekStartsOn: s.weekStartsOn === 0 ? 0 : 1,
+    language: LANGUAGES.includes(s.language) ? s.language : 'system',
   };
 }
 

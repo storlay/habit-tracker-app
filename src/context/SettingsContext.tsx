@@ -10,10 +10,11 @@ import {
 } from 'react';
 import { useColorScheme } from 'react-native';
 import { PALETTES, type Palette, type ThemeName } from '../constants/theme';
+import i18n, { detectSystemLanguage } from '../i18n';
 import { loadSettings, saveSettings } from '../storage/repository';
 import type { Settings } from '../types';
 
-const DEFAULTS: Settings = { theme: 'system', weekStartsOn: 1 };
+const DEFAULTS: Settings = { theme: 'system', weekStartsOn: 1, language: 'system' };
 
 type ContextValue = {
   settings: Settings;
@@ -21,6 +22,7 @@ type ContextValue = {
   colors: Palette;
   setTheme: (theme: Settings['theme']) => void;
   setWeekStartsOn: (day: Settings['weekStartsOn']) => void;
+  setLanguage: (language: Settings['language']) => void;
 };
 
 const SettingsContext = createContext<ContextValue | null>(null);
@@ -50,6 +52,16 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     setSettings((s) => ({ ...s, weekStartsOn }));
   }, []);
 
+  const setLanguage = useCallback((language: Settings['language']) => {
+    setSettings((s) => ({ ...s, language }));
+  }, []);
+
+  useEffect(() => {
+    const resolved =
+      settings.language === 'system' ? detectSystemLanguage() : settings.language;
+    if (i18n.language !== resolved) void i18n.changeLanguage(resolved);
+  }, [settings.language]);
+
   const theme: ThemeName =
     settings.theme === 'system' ? (system === 'dark' ? 'dark' : 'light') : settings.theme;
 
@@ -60,8 +72,9 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
       colors: PALETTES[theme],
       setTheme,
       setWeekStartsOn,
+      setLanguage,
     }),
-    [settings, theme, setTheme, setWeekStartsOn],
+    [settings, theme, setTheme, setWeekStartsOn, setLanguage],
   );
 
   return <SettingsContext.Provider value={value}>{children}</SettingsContext.Provider>;
