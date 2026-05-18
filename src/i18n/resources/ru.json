@@ -92,7 +92,20 @@
     "categoryDeleteUsedTitle": "Нельзя удалить",
     "categoryDeleteUsedBody": "Эта категория используется привычками"
   },
-  "validation": {},
-  "notifications": {},
+  "validation": {
+    "titleRequired": "Введите название",
+    "typeInvalid": "Неверный тип привычки",
+    "colorInvalid": "Неверный цвет",
+    "categoryRequired": "Выберите категорию",
+    "targetRequired": "Укажите цель",
+    "reminderHourInvalid": "Неверный час напоминания",
+    "reminderMinuteInvalid": "Неверная минута напоминания",
+    "reminderDaysRequired": "Выберите дни напоминания",
+    "reminderDaysInvalid": "Неверные дни напоминания"
+  },
+  "notifications": {
+    "reminderBody": "Время отметить привычку",
+    "androidChannelName": "Напоминания о привычках"
+  },
   "categories": {}
 }

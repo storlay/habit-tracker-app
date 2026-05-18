@@ -88,7 +88,20 @@
     "categoryDeleteUsedTitle": "No se puede eliminar",
     "categoryDeleteUsedBody": "Esta categoría está en uso por hábitos"
   },
-  "validation": {},
-  "notifications": {},
+  "validation": {
+    "titleRequired": "Introduce un nombre",
+    "typeInvalid": "Tipo de hábito no válido",
+    "colorInvalid": "Color no válido",
+    "categoryRequired": "Selecciona una categoría",
+    "targetRequired": "Indica un objetivo",
+    "reminderHourInvalid": "Hora de recordatorio no válida",
+    "reminderMinuteInvalid": "Minuto de recordatorio no válido",
+    "reminderDaysRequired": "Selecciona días de recordatorio",
+    "reminderDaysInvalid": "Días de recordatorio no válidos"
+  },
+  "notifications": {
+    "reminderBody": "Es hora de marcar tu hábito",
+    "androidChannelName": "Recordatorios de hábitos"
+  },
   "categories": {}
 }

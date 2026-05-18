@@ -88,7 +88,20 @@
     "categoryDeleteUsedTitle": "Cannot delete",
     "categoryDeleteUsedBody": "This category is used by habits"
   },
-  "validation": {},
-  "notifications": {},
+  "validation": {
+    "titleRequired": "Enter a title",
+    "typeInvalid": "Invalid habit type",
+    "colorInvalid": "Invalid color",
+    "categoryRequired": "Select a category",
+    "targetRequired": "Specify a target",
+    "reminderHourInvalid": "Invalid reminder hour",
+    "reminderMinuteInvalid": "Invalid reminder minute",
+    "reminderDaysRequired": "Select reminder days",
+    "reminderDaysInvalid": "Invalid reminder days"
+  },
+  "notifications": {
+    "reminderBody": "Time to log your habit",
+    "androidChannelName": "Habit reminders"
+  },
   "categories": {}
 }

@@ -1,5 +1,6 @@
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
+import i18n from '../i18n';
 import type { Habit } from '../types';
 
 Notifications.setNotificationHandler({
@@ -25,7 +26,7 @@ async function ensureAndroidChannel(): Promise<void> {
   if (Platform.OS !== 'android') return;
   if (!channelReady) {
     channelReady = Notifications.setNotificationChannelAsync('habit-reminders', {
-      name: 'Напоминания о привычках',
+      name: i18n.t('notifications:androidChannelName'),
       importance: Notifications.AndroidImportance.DEFAULT,
     }).then(() => undefined);
   }
@@ -41,7 +42,7 @@ export async function scheduleForHabit(habit: Habit): Promise<string[]> {
       Notifications.scheduleNotificationAsync({
         content: {
           title: habit.title,
-          body: 'Время отметить привычку',
+          body: i18n.t('notifications:reminderBody'),
         },
         trigger: {
           type: Notifications.SchedulableTriggerInputTypes.WEEKLY,

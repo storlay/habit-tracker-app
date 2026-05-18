@@ -110,7 +110,7 @@ export default function HabitFormScreen({ route, navigation }: HabitFormProps) {
     };
     const err = validateDraft(draft);
     if (err) {
-      Alert.alert(t('form:checkFormTitle'), err);
+      Alert.alert(t('form:checkFormTitle'), t(err));
       return;
     }
     setSaving(true);

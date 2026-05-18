@@ -11,19 +11,19 @@ export function isHabitType(value: string): value is HabitType {
 }
 
 export function validateDraft(draft: HabitDraft): string | null {
-  if (!draft.title || draft.title.length === 0) return 'Введите название';
-  if (!isHabitType(draft.type)) return 'Неверный тип привычки';
-  if (!isHexColor(draft.color)) return 'Неверный цвет';
-  if (!draft.categoryId) return 'Выберите категорию';
+  if (!draft.title || draft.title.length === 0) return 'validation:titleRequired';
+  if (!isHabitType(draft.type)) return 'validation:typeInvalid';
+  if (!isHexColor(draft.color)) return 'validation:colorInvalid';
+  if (!draft.categoryId) return 'validation:categoryRequired';
   if (draft.type !== 'binary' && (!Number.isFinite(draft.target) || (draft.target as number) < 1)) {
-    return 'Укажите цель';
+    return 'validation:targetRequired';
   }
   if (draft.reminder) {
     const { hour, minute, days } = draft.reminder;
-    if (!Number.isInteger(hour) || hour < 0 || hour > 23) return 'Неверный час напоминания';
-    if (!Number.isInteger(minute) || minute < 0 || minute > 59) return 'Неверная минута напоминания';
-    if (!Array.isArray(days) || days.length === 0) return 'Выберите дни напоминания';
-    if (days.some((d) => !Number.isInteger(d) || d < 0 || d > 6)) return 'Неверные дни напоминания';
+    if (!Number.isInteger(hour) || hour < 0 || hour > 23) return 'validation:reminderHourInvalid';
+    if (!Number.isInteger(minute) || minute < 0 || minute > 59) return 'validation:reminderMinuteInvalid';
+    if (!Array.isArray(days) || days.length === 0) return 'validation:reminderDaysRequired';
+    if (days.some((d) => !Number.isInteger(d) || d < 0 || d > 6)) return 'validation:reminderDaysInvalid';
   }
   return null;
 }

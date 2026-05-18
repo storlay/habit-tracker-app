@@ -88,7 +88,20 @@
     "categoryDeleteUsedTitle": "Löschen nicht möglich",
     "categoryDeleteUsedBody": "Diese Kategorie wird von Gewohnheiten genutzt"
   },
-  "validation": {},
-  "notifications": {},
+  "validation": {
+    "titleRequired": "Name eingeben",
+    "typeInvalid": "Ungültiger Gewohnheitstyp",
+    "colorInvalid": "Ungültige Farbe",
+    "categoryRequired": "Kategorie wählen",
+    "targetRequired": "Ziel angeben",
+    "reminderHourInvalid": "Ungültige Erinnerungsstunde",
+    "reminderMinuteInvalid": "Ungültige Erinnerungsminute",
+    "reminderDaysRequired": "Erinnerungstage wählen",
+    "reminderDaysInvalid": "Ungültige Erinnerungstage"
+  },
+  "notifications": {
+    "reminderBody": "Zeit, deine Gewohnheit zu notieren",
+    "androidChannelName": "Gewohnheits-Erinnerungen"
+  },
   "categories": {}
 }
