@@ -16,8 +16,10 @@ import {
 import { HABIT_COLORS } from '../constants/colors';
 import { HABIT_ICONS, type IoniconName } from '../constants/icons';
 import { useHabits } from '../context/HabitsContext';
+import { useTheme } from '../context/SettingsContext';
 import type { HabitFormProps } from '../navigation/types';
 import type { HabitDraft, HabitType } from '../types';
+import { withAlpha } from '../utils/color';
 import { requestPermissions } from '../utils/notifications';
 import { DOW_SHORT } from '../utils/stats';
 import { validateDraft } from '../utils/validation';
@@ -41,6 +43,7 @@ function initialTime(reminder: { hour: number; minute: number } | undefined): Da
 
 export default function HabitFormScreen({ route, navigation }: HabitFormProps) {
   const { state, addHabit, editHabit, archiveHabit } = useHabits();
+  const { colors } = useTheme();
   const editingId = route.params?.habitId;
   const editing = editingId ? state.habits.find((h) => h.id === editingId) : undefined;
 
@@ -140,14 +143,23 @@ export default function HabitFormScreen({ route, navigation }: HabitFormProps) {
     ]);
   };
 
+  const inputStyle = [
+    styles.input,
+    { borderColor: colors.border, color: colors.text, backgroundColor: colors.surface },
+  ];
+
   return (
-    <ScrollView contentContainerStyle={styles.container}>
+    <ScrollView
+      style={{ backgroundColor: colors.bg }}
+      contentContainerStyle={styles.container}
+    >
       <Field label="Название">
         <TextInput
           value={title}
           onChangeText={setTitle}
           placeholder="Например, Пить воду"
-          style={styles.input}
+          placeholderTextColor={colors.textMuted}
+          style={inputStyle}
           maxLength={60}
         />
       </Field>
@@ -172,8 +184,9 @@ export default function HabitFormScreen({ route, navigation }: HabitFormProps) {
               value={target}
               onChangeText={setTarget}
               placeholder={type === 'counter' ? '8' : '30'}
+              placeholderTextColor={colors.textMuted}
               keyboardType="number-pad"
-              style={styles.input}
+              style={inputStyle}
               maxLength={4}
             />
           </Field>
@@ -182,7 +195,8 @@ export default function HabitFormScreen({ route, navigation }: HabitFormProps) {
               value={unit}
               onChangeText={setUnit}
               placeholder={type === 'counter' ? 'стаканов' : 'мин'}
-              style={styles.input}
+              placeholderTextColor={colors.textMuted}
+              style={inputStyle}
               maxLength={20}
             />
           </Field>
@@ -210,8 +224,8 @@ export default function HabitFormScreen({ route, navigation }: HabitFormProps) {
               onPress={() => setColor(c)}
               style={[
                 styles.colorTile,
-                { backgroundColor: c },
-                color === c && styles.colorTileSelected,
+                { backgroundColor: c, borderColor: 'transparent' },
+                color === c && { borderColor: colors.text },
               ]}
             />
           ))}
@@ -226,13 +240,14 @@ export default function HabitFormScreen({ route, navigation }: HabitFormProps) {
               onPress={() => setIcon(name)}
               style={[
                 styles.iconTile,
-                icon === name && { backgroundColor: color + '22', borderColor: color },
+                { borderColor: colors.border, backgroundColor: colors.surface },
+                icon === name && { backgroundColor: withAlpha(color, 0.13), borderColor: color },
               ]}
             >
               <Ionicons
                 name={name}
                 size={22}
-                color={icon === name ? color : '#475569'}
+                color={icon === name ? color : colors.textSecondary}
               />
             </Pressable>
           ))}
@@ -254,7 +269,7 @@ export default function HabitFormScreen({ route, navigation }: HabitFormProps) {
 
       <View style={styles.field}>
         <View style={styles.reminderHeader}>
-          <Text style={styles.label}>Напоминание</Text>
+          <Text style={[styles.label, { color: colors.textSecondary }]}>Напоминание</Text>
           <Switch value={reminderEnabled} onValueChange={onToggleReminder} />
         </View>
         {reminderEnabled ? (
@@ -269,9 +284,14 @@ export default function HabitFormScreen({ route, navigation }: HabitFormProps) {
               <>
                 <Pressable
                   onPress={() => setShowPicker(true)}
-                  style={styles.timeBtn}
+                  style={[
+                    styles.timeBtn,
+                    { borderColor: colors.border, backgroundColor: colors.surface },
+                  ]}
                 >
-                  <Text style={styles.timeBtnText}>{format(reminderTime, 'HH:mm')}</Text>
+                  <Text style={[styles.timeBtnText, { color: colors.text }]}>
+                    {format(reminderTime, 'HH:mm')}
+                  </Text>
                 </Pressable>
                 {showPicker ? (
                   <DateTimePicker
@@ -310,7 +330,7 @@ export default function HabitFormScreen({ route, navigation }: HabitFormProps) {
 
       {editing ? (
         <Pressable onPress={onArchive} style={styles.archiveBtn}>
-          <Text style={styles.archiveBtnText}>В архив</Text>
+          <Text style={[styles.archiveBtnText, { color: colors.danger }]}>В архив</Text>
         </Pressable>
       ) : null}
     </ScrollView>
@@ -318,9 +338,10 @@ export default function HabitFormScreen({ route, navigation }: HabitFormProps) {
 }
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  const { colors } = useTheme();
   return (
     <View style={styles.field}>
-      <Text style={styles.label}>{label}</Text>
+      <Text style={[styles.label, { color: colors.textSecondary }]}>{label}</Text>
       {children}
     </View>
   );
@@ -335,12 +356,22 @@ function Chip({
   selected: boolean;
   onPress: () => void;
 }) {
+  const { colors } = useTheme();
   return (
     <Pressable
       onPress={onPress}
-      style={[styles.chip, selected && styles.chipSelected]}
+      style={[
+        styles.chip,
+        { borderColor: colors.border, backgroundColor: colors.surface },
+        selected && { backgroundColor: colors.text, borderColor: colors.text },
+      ]}
     >
-      <Text style={[styles.chipText, selected && styles.chipTextSelected]}>
+      <Text
+        style={[
+          styles.chipText,
+          { color: selected ? colors.bg : colors.text },
+        ]}
+      >
         {label}
       </Text>
     </Pressable>
@@ -350,10 +381,9 @@ function Chip({
 const styles = StyleSheet.create({
   container: { padding: 16, gap: 16, paddingBottom: 48 },
   field: { gap: 8 },
-  label: { fontSize: 13, fontWeight: '600', color: '#475569' },
+  label: { fontSize: 13, fontWeight: '600' },
   input: {
     borderWidth: 1,
-    borderColor: '#e5e7eb',
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 10,
@@ -365,29 +395,21 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: '#e5e7eb',
-    backgroundColor: '#fff',
   },
-  chipSelected: { backgroundColor: '#0f172a', borderColor: '#0f172a' },
-  chipText: { fontSize: 14, color: '#0f172a' },
-  chipTextSelected: { color: '#fff' },
+  chipText: { fontSize: 14 },
   colorTile: {
     width: 36,
     height: 36,
     borderRadius: 18,
     borderWidth: 2,
-    borderColor: 'transparent',
   },
-  colorTileSelected: { borderColor: '#0f172a' },
   iconTile: {
     width: 44,
     height: 44,
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: '#e5e7eb',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#fff',
   },
   reminderHeader: {
     flexDirection: 'row',
@@ -401,10 +423,8 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#e5e7eb',
-    backgroundColor: '#fff',
   },
-  timeBtnText: { fontSize: 16, color: '#0f172a', fontVariant: ['tabular-nums'] },
+  timeBtnText: { fontSize: 16, fontVariant: ['tabular-nums'] },
   saveBtn: {
     marginTop: 8,
     paddingVertical: 14,
@@ -413,5 +433,5 @@ const styles = StyleSheet.create({
   },
   saveBtnText: { color: '#fff', fontSize: 16, fontWeight: '600' },
   archiveBtn: { paddingVertical: 12, alignItems: 'center' },
-  archiveBtnText: { color: '#ef4444', fontSize: 14, fontWeight: '500' },
+  archiveBtnText: { fontSize: 14, fontWeight: '500' },
 });

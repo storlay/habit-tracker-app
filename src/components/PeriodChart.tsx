@@ -2,6 +2,7 @@ import { matchFont } from '@shopify/react-native-skia';
 import { useMemo } from 'react';
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Bar, CartesianChart, Line } from 'victory-native';
+import { useTheme } from '../context/SettingsContext';
 import type { Entry, Habit } from '../types';
 import { aggregate, type Period } from '../utils/stats';
 
@@ -20,6 +21,7 @@ type Props = {
 };
 
 export function PeriodChart({ habit, entries, period, onChangePeriod }: Props) {
+  const { colors } = useTheme();
   const data = useMemo(
     () => aggregate(habit, entries, period).map((b, i) => ({ i, value: b.value, label: b.label })),
     [habit, entries, period],
@@ -31,15 +33,28 @@ export function PeriodChart({ habit, entries, period, onChangePeriod }: Props) {
   return (
     <View>
       <View style={styles.chips}>
-        {PERIODS.map((p) => (
-          <Pressable
-            key={p}
-            onPress={() => onChangePeriod(p)}
-            style={[styles.chip, p === period && { backgroundColor: habit.color }]}
-          >
-            <Text style={[styles.chipText, p === period && styles.chipTextActive]}>{p}</Text>
-          </Pressable>
-        ))}
+        {PERIODS.map((p) => {
+          const active = p === period;
+          return (
+            <Pressable
+              key={p}
+              onPress={() => onChangePeriod(p)}
+              style={[
+                styles.chip,
+                { backgroundColor: active ? habit.color : colors.surfaceAlt },
+              ]}
+            >
+              <Text
+                style={[
+                  styles.chipText,
+                  { color: active ? '#fff' : colors.textSecondary },
+                ]}
+              >
+                {p}
+              </Text>
+            </Pressable>
+          );
+        })}
       </View>
 
       <View style={styles.chartBox}>
@@ -51,8 +66,8 @@ export function PeriodChart({ habit, entries, period, onChangePeriod }: Props) {
             domainPadding={{ left: 16, right: 16, top: 12 }}
             axisOptions={{
               font,
-              lineColor: '#e5e7eb',
-              labelColor: '#64748b',
+              lineColor: colors.border,
+              labelColor: colors.textSecondary,
               formatXLabel: (i) => data[i as number]?.label ?? '',
             }}
           >
@@ -70,7 +85,9 @@ export function PeriodChart({ habit, entries, period, onChangePeriod }: Props) {
             }
           </CartesianChart>
         ) : (
-          <Text style={styles.empty}>За этот период нет данных</Text>
+          <Text style={[styles.empty, { color: colors.textMuted }]}>
+            За этот период нет данных
+          </Text>
         )}
       </View>
     </View>
@@ -83,10 +100,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 999,
-    backgroundColor: '#f1f5f9',
   },
-  chipText: { fontSize: 12, color: '#475569', fontWeight: '600' },
-  chipTextActive: { color: '#fff' },
+  chipText: { fontSize: 12, fontWeight: '600' },
   chartBox: { height: 200 },
-  empty: { textAlign: 'center', color: '#94a3b8', marginTop: 64 },
+  empty: { textAlign: 'center', marginTop: 64 },
 });

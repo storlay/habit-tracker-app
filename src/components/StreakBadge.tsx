@@ -1,5 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { StyleSheet, Text, View } from 'react-native';
+import { useTheme } from '../context/SettingsContext';
+import { withAlpha } from '../utils/color';
 
 type Props = {
   current: number;
@@ -8,23 +10,34 @@ type Props = {
 };
 
 export function StreakBadge({ current, best, color }: Props) {
+  const { colors } = useTheme();
   return (
     <View style={styles.row}>
-      <View style={[styles.box, { borderColor: color + '55' }]}>
+      <View
+        style={[
+          styles.box,
+          { borderColor: withAlpha(color, 0.33), backgroundColor: colors.surface },
+        ]}
+      >
         <View style={styles.head}>
           <Ionicons name="flame" size={16} color={color} />
-          <Text style={styles.caption}>Сейчас</Text>
+          <Text style={[styles.caption, { color: colors.textSecondary }]}>Сейчас</Text>
         </View>
-        <Text style={styles.value}>{current}</Text>
-        <Text style={styles.unit}>{dayWord(current)}</Text>
+        <Text style={[styles.value, { color: colors.text }]}>{current}</Text>
+        <Text style={[styles.unit, { color: colors.textSecondary }]}>{dayWord(current)}</Text>
       </View>
-      <View style={[styles.box, { borderColor: '#e5e7eb' }]}>
+      <View
+        style={[
+          styles.box,
+          { borderColor: colors.border, backgroundColor: colors.surface },
+        ]}
+      >
         <View style={styles.head}>
-          <Ionicons name="trophy" size={16} color="#f59e0b" />
-          <Text style={styles.caption}>Лучший</Text>
+          <Ionicons name="trophy" size={16} color={colors.warning} />
+          <Text style={[styles.caption, { color: colors.textSecondary }]}>Лучший</Text>
         </View>
-        <Text style={styles.value}>{best}</Text>
-        <Text style={styles.unit}>{dayWord(best)}</Text>
+        <Text style={[styles.value, { color: colors.text }]}>{best}</Text>
+        <Text style={[styles.unit, { color: colors.textSecondary }]}>{dayWord(best)}</Text>
       </View>
     </View>
   );
@@ -46,10 +59,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 12,
     padding: 12,
-    backgroundColor: '#fff',
   },
   head: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 6 },
-  caption: { fontSize: 12, color: '#64748b' },
-  value: { fontSize: 26, fontWeight: '700', color: '#0f172a' },
-  unit: { fontSize: 12, color: '#64748b', marginTop: 2 },
+  caption: { fontSize: 12 },
+  value: { fontSize: 26, fontWeight: '700' },
+  unit: { fontSize: 12, marginTop: 2 },
 });

@@ -2,7 +2,9 @@ import { Ionicons } from '@expo/vector-icons';
 import { useEffect, useReducer, useRef, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import ReanimatedSwipeable from 'react-native-gesture-handler/ReanimatedSwipeable';
+import { useTheme } from '../context/SettingsContext';
 import type { Entry, Habit } from '../types';
+import { withAlpha } from '../utils/color';
 
 type Props = {
   habit: Habit;
@@ -30,18 +32,26 @@ export function HabitCard(props: Props) {
 type BodyProps = Pick<Props, 'habit' | 'entry' | 'onSetValue'>;
 
 function CardBody({ habit, entry, onSetValue }: BodyProps) {
+  const { colors } = useTheme();
   const value = entry?.value ?? 0;
   const done = entry?.completed ?? false;
   const target = habit.target ?? 1;
 
   return (
-    <View style={styles.card}>
-      <View style={[styles.iconWrap, { backgroundColor: habit.color + '22' }]}>
+    <View style={[styles.card, { backgroundColor: colors.surface }]}>
+      <View style={[styles.iconWrap, { backgroundColor: withAlpha(habit.color, 0.13) }]}>
         <Ionicons name={habit.icon} size={22} color={habit.color} />
       </View>
 
       <View style={styles.body}>
-        <Text style={[styles.title, done && styles.titleDone]} numberOfLines={1}>
+        <Text
+          style={[
+            styles.title,
+            { color: done ? colors.textMuted : colors.text },
+            done && styles.titleDone,
+          ]}
+          numberOfLines={1}
+        >
           {habit.title}
         </Text>
         {habit.type !== 'binary' ? (
@@ -92,6 +102,7 @@ function CounterControl({
   color: string;
   onSetValue: (v: number) => void;
 }) {
+  const { colors } = useTheme();
   return (
     <View style={styles.counterRow}>
       <Pressable
@@ -102,7 +113,7 @@ function CounterControl({
       >
         <Ionicons name="remove" size={18} color={color} />
       </Pressable>
-      <Text style={styles.counterValue}>{value}</Text>
+      <Text style={[styles.counterValue, { color: colors.text }]}>{value}</Text>
       <Pressable
         onPress={() => onSetValue(value + 1)}
         onLongPress={() => onSetValue(value + 5)}
@@ -124,6 +135,7 @@ function DurationControl({
   color: string;
   onSetValue: (v: number) => void;
 }) {
+  const { colors } = useTheme();
   const [runningSince, setRunningSince] = useState<number | null>(null);
   const [, tick] = useReducer((n: number) => n + 1, 0);
   const tickRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -153,10 +165,10 @@ function DurationControl({
   const running = runningSince !== null;
   return (
     <View style={styles.counterRow}>
-      <Text style={styles.counterValue}>{displayMinutes}</Text>
+      <Text style={[styles.counterValue, { color: colors.text }]}>{displayMinutes}</Text>
       <Pressable
         onPress={onPress}
-        style={[styles.stepBtn, { backgroundColor: running ? '#ef4444' : color }]}
+        style={[styles.stepBtn, { backgroundColor: running ? colors.danger : color }]}
         hitSlop={6}
       >
         <Ionicons name={running ? 'stop' : 'play'} size={18} color="#fff" />
@@ -176,13 +188,14 @@ function ProgressBar({
   color: string;
   unit?: string;
 }) {
+  const { colors } = useTheme();
   const pct = Math.max(0, Math.min(1, value / target));
   return (
     <View style={styles.progressWrap}>
-      <View style={styles.progressTrack}>
+      <View style={[styles.progressTrack, { backgroundColor: colors.trackBg }]}>
         <View style={[styles.progressFill, { width: `${pct * 100}%`, backgroundColor: color }]} />
       </View>
-      <Text style={styles.progressText}>
+      <Text style={[styles.progressText, { color: colors.textSecondary }]}>
         {Math.floor(value)} / {target}
         {unit ? ` ${unit}` : ''}
       </Text>
@@ -197,12 +210,13 @@ function RightActions({
   onEdit: () => void;
   onArchive: () => void;
 }) {
+  const { colors } = useTheme();
   return (
     <View style={styles.actions}>
       <Pressable onPress={onEdit} style={[styles.actionBtn, { backgroundColor: '#3b82f6' }]}>
         <Ionicons name="pencil" size={20} color="#fff" />
       </Pressable>
-      <Pressable onPress={onArchive} style={[styles.actionBtn, { backgroundColor: '#ef4444' }]}>
+      <Pressable onPress={onArchive} style={[styles.actionBtn, { backgroundColor: colors.danger }]}>
         <Ionicons name="archive" size={20} color="#fff" />
       </Pressable>
     </View>
@@ -214,7 +228,6 @@ const styles = StyleSheet.create({
   card: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f8fafc',
     borderRadius: 12,
     padding: 12,
     gap: 12,
@@ -227,8 +240,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   body: { flex: 1, gap: 4 },
-  title: { fontSize: 16, fontWeight: '500', color: '#0f172a' },
-  titleDone: { color: '#94a3b8', textDecorationLine: 'line-through' },
+  title: { fontSize: 16, fontWeight: '500' },
+  titleDone: { textDecorationLine: 'line-through' },
   checkBtn: {
     width: 32,
     height: 32,
@@ -251,17 +264,15 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 15,
     fontWeight: '600',
-    color: '#0f172a',
   },
   progressWrap: { gap: 2 },
   progressTrack: {
     height: 4,
-    backgroundColor: '#e5e7eb',
     borderRadius: 2,
     overflow: 'hidden',
   },
   progressFill: { height: '100%', borderRadius: 2 },
-  progressText: { fontSize: 11, color: '#64748b' },
+  progressText: { fontSize: 11 },
   actions: { flexDirection: 'row', alignItems: 'center' },
   actionBtn: {
     width: 56,

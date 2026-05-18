@@ -1,7 +1,9 @@
 import { useMemo, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import Svg, { Rect, Text as SvgText } from 'react-native-svg';
+import { useSettings, useTheme } from '../context/SettingsContext';
 import type { Entry, Habit } from '../types';
+import { withAlpha } from '../utils/color';
 import { addDaysISO, subDaysISO, todayISO, weekdayIndex, type ISODate } from '../utils/date';
 import { intensityLevel } from '../utils/stats';
 
@@ -11,10 +13,10 @@ const GAP = 3;
 const STEP = CELL + GAP;
 const LEFT_LABEL_W = 22;
 const TOP_LABEL_H = 16;
-const LABEL_COLOR = '#64748b';
 
 const MONTHS = ['янв', 'фев', 'мар', 'апр', 'май', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'];
-const ROW_LABELS = ['', 'Пн', '', 'Ср', '', 'Пт', ''];
+const ROW_LABELS_SUN = ['', 'Пн', '', 'Ср', '', 'Пт', ''];
+const ROW_LABELS_MON = ['Пн', '', 'Ср', '', 'Пт', '', ''];
 
 type Props = {
   habit: Habit;
@@ -24,11 +26,15 @@ type Props = {
 type Cell = { date: ISODate; week: number; row: number; level: 0 | 1 | 2 | 3 | 4 };
 
 export function Heatmap({ habit, entries }: Props) {
+  const { colors } = useTheme();
+  const { settings } = useSettings();
+  const weekStartsOn = settings.weekStartsOn;
   const [selected, setSelected] = useState<Cell | null>(null);
 
   const { cells, monthLabels } = useMemo(() => {
     const today = todayISO();
-    const oldestStart = subDaysISO(today, (WEEKS - 1) * 7 + weekdayIndex(today));
+    const offsetIntoCol = (weekdayIndex(today) - weekStartsOn + 7) % 7;
+    const oldestStart = subDaysISO(today, (WEEKS - 1) * 7 + offsetIntoCol);
     const target = habit.type === 'binary' ? 1 : (habit.target ?? 1);
 
     const cs: Cell[] = [];
@@ -50,7 +56,9 @@ export function Heatmap({ habit, entries }: Props) {
       }
     }
     return { cells: cs, monthLabels: labels };
-  }, [habit.type, habit.target, entries]);
+  }, [habit.type, habit.target, entries, weekStartsOn]);
+
+  const rowLabels = weekStartsOn === 1 ? ROW_LABELS_MON : ROW_LABELS_SUN;
 
   const gridW = WEEKS * STEP;
   const gridH = 7 * STEP;
@@ -66,20 +74,20 @@ export function Heatmap({ habit, entries }: Props) {
                 x={LEFT_LABEL_W + m.week * STEP}
                 y={TOP_LABEL_H - 4}
                 fontSize={10}
-                fill={LABEL_COLOR}
+                fill={colors.textSecondary}
               >
                 {m.label}
               </SvgText>
             ) : null,
           )}
-          {ROW_LABELS.map((label, row) =>
+          {rowLabels.map((label, row) =>
             label ? (
               <SvgText
                 key={`r-${row}`}
                 x={0}
                 y={TOP_LABEL_H + row * STEP + CELL - 2}
                 fontSize={10}
-                fill={LABEL_COLOR}
+                fill={colors.textSecondary}
               >
                 {label}
               </SvgText>
@@ -93,8 +101,8 @@ export function Heatmap({ habit, entries }: Props) {
               width={CELL}
               height={CELL}
               rx={2}
-              fill={fillFor(c.level, habit.color)}
-              stroke={selected?.date === c.date ? '#0f172a' : 'transparent'}
+              fill={fillFor(c.level, habit.color, colors.trackBg)}
+              stroke={selected?.date === c.date ? colors.text : 'transparent'}
               strokeWidth={1.5}
               onPress={() => setSelected(c)}
             />
@@ -106,10 +114,9 @@ export function Heatmap({ habit, entries }: Props) {
   );
 }
 
-function fillFor(level: 0 | 1 | 2 | 3 | 4, color: string): string {
-  if (level === 0) return '#e5e7eb';
-  const alpha = { 1: '40', 2: '80', 3: 'bf', 4: 'ff' }[level];
-  return color + alpha;
+function fillFor(level: 0 | 1 | 2 | 3 | 4, color: string, empty: string): string {
+  if (level === 0) return empty;
+  return withAlpha(color, level / 4);
 }
 
 function Tooltip({
@@ -121,8 +128,13 @@ function Tooltip({
   entries: Record<string, Entry>;
   habit: Habit;
 }) {
+  const { colors } = useTheme();
   if (!selected) {
-    return <Text style={styles.tooltipHint}>Нажмите ячейку, чтобы увидеть детали</Text>;
+    return (
+      <Text style={[styles.tooltipHint, { color: colors.textMuted }]}>
+        Нажмите ячейку, чтобы увидеть детали
+      </Text>
+    );
   }
   const e = entries[selected.date];
   const value = e?.value ?? 0;
@@ -134,13 +146,13 @@ function Tooltip({
         : 'нет'
       : `${value}/${target}${habit.unit ? ' ' + habit.unit : ''}`;
   return (
-    <Text style={styles.tooltip}>
+    <Text style={[styles.tooltip, { color: colors.text }]}>
       {selected.date} — {valueLabel}
     </Text>
   );
 }
 
 const styles = StyleSheet.create({
-  tooltip: { marginTop: 8, fontSize: 13, color: '#0f172a' },
-  tooltipHint: { marginTop: 8, fontSize: 12, color: '#94a3b8' },
+  tooltip: { marginTop: 8, fontSize: 13 },
+  tooltipHint: { marginTop: 8, fontSize: 12 },
 });
