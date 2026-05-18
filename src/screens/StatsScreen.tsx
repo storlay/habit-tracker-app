@@ -1,5 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { Heatmap } from '../components/Heatmap';
 import { PeriodChart } from '../components/PeriodChart';
@@ -12,6 +13,7 @@ import { bestStreak, currentStreak, type Period } from '../utils/stats';
 export default function StatsScreen() {
   const { state } = useHabits();
   const { colors } = useTheme();
+  const { t } = useTranslation();
   const active = state.habits.filter((h) => !h.archived);
 
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -20,7 +22,7 @@ export default function StatsScreen() {
   if (!state.hydrated) {
     return (
       <View style={[styles.center, { backgroundColor: colors.bg }]}>
-        <Text style={{ color: colors.text }}>Загрузка…</Text>
+        <Text style={{ color: colors.text }}>{t('common:loading')}</Text>
       </View>
     );
   }
@@ -29,9 +31,9 @@ export default function StatsScreen() {
     return (
       <View style={[styles.center, { backgroundColor: colors.bg }]}>
         <Ionicons name="stats-chart-outline" size={48} color={colors.border} />
-        <Text style={[styles.emptyTitle, { color: colors.text }]}>Нет данных</Text>
+        <Text style={[styles.emptyTitle, { color: colors.text }]}>{t('stats:emptyTitle')}</Text>
         <Text style={[styles.emptyText, { color: colors.textSecondary }]}>
-          Создайте привычку на вкладке «Сегодня», чтобы увидеть статистику
+          {t('stats:emptyText')}
         </Text>
       </View>
     );
@@ -46,10 +48,10 @@ export default function StatsScreen() {
     >
       <HabitPicker habits={active} selected={habit} onSelect={(id) => setSelectedId(id)} />
       <StreakInfo habit={habit} entries={state.entries[habit.id] ?? {}} />
-      <Section title="Календарь">
+      <Section title={t('stats:calendar')}>
         <Heatmap habit={habit} entries={state.entries[habit.id] ?? {}} />
       </Section>
-      <Section title="Динамика">
+      <Section title={t('stats:dynamics')}>
         <PeriodChart
           habit={habit}
           entries={state.entries[habit.id] ?? {}}

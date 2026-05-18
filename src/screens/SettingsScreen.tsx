@@ -1,5 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Alert,
   Pressable,
@@ -18,29 +19,30 @@ import type { Settings } from '../types';
 import { withAlpha } from '../utils/color';
 import { exportPayload } from '../utils/exporter';
 
-const THEME_OPTIONS: { value: Settings['theme']; label: string; icon: IoniconName }[] = [
-  { value: 'system', label: 'Системная', icon: 'phone-portrait-outline' },
-  { value: 'light', label: 'Светлая', icon: 'sunny-outline' },
-  { value: 'dark', label: 'Тёмная', icon: 'moon-outline' },
+const THEME_OPTIONS: { value: Settings['theme']; labelKey: string; icon: IoniconName }[] = [
+  { value: 'system', labelKey: 'settings:themeSystem', icon: 'phone-portrait-outline' },
+  { value: 'light', labelKey: 'settings:themeLight', icon: 'sunny-outline' },
+  { value: 'dark', labelKey: 'settings:themeDark', icon: 'moon-outline' },
 ];
 
-const WEEK_OPTIONS: { value: Settings['weekStartsOn']; label: string }[] = [
-  { value: 1, label: 'Понедельник' },
-  { value: 0, label: 'Воскресенье' },
+const WEEK_OPTIONS: { value: Settings['weekStartsOn']; labelKey: string }[] = [
+  { value: 1, labelKey: 'settings:weekMonday' },
+  { value: 0, labelKey: 'settings:weekSunday' },
 ];
 
-const LANGUAGE_OPTIONS: { value: Settings['language']; label: string }[] = [
-  { value: 'system', label: 'Системный' },
-  { value: 'ru', label: 'Русский' },
-  { value: 'en', label: 'English' },
-  { value: 'es', label: 'Español' },
-  { value: 'de', label: 'Deutsch' },
+const LANGUAGE_OPTIONS: { value: Settings['language']; labelKey: string }[] = [
+  { value: 'system', labelKey: 'settings:languageSystem' },
+  { value: 'ru', labelKey: 'settings:languageRu' },
+  { value: 'en', labelKey: 'settings:languageEn' },
+  { value: 'es', labelKey: 'settings:languageEs' },
+  { value: 'de', labelKey: 'settings:languageDe' },
 ];
 
 export default function SettingsScreen() {
   const { colors } = useTheme();
   const { settings, setTheme, setWeekStartsOn, setLanguage } = useSettings();
   const { state } = useHabits();
+  const { t } = useTranslation();
 
   const onExport = async () => {
     try {
@@ -52,8 +54,8 @@ export default function SettingsScreen() {
       });
       await Share.share({ message: json });
     } catch (e) {
-      const msg = e instanceof Error ? e.message : 'Не удалось экспортировать';
-      Alert.alert('Ошибка', msg);
+      const msg = e instanceof Error ? e.message : t('settings:exportErrorFallback');
+      Alert.alert(t('settings:exportErrorTitle'), msg);
     }
   };
 
@@ -62,14 +64,14 @@ export default function SettingsScreen() {
       style={{ backgroundColor: colors.bg }}
       contentContainerStyle={styles.container}
     >
-      <Section title="Тема">
+      <Section title={t('settings:sectionTheme')}>
         <View style={styles.row}>
-          {THEME_OPTIONS.map((t) => {
-            const active = settings.theme === t.value;
+          {THEME_OPTIONS.map((opt) => {
+            const active = settings.theme === opt.value;
             return (
               <Pressable
-                key={t.value}
-                onPress={() => setTheme(t.value)}
+                key={opt.value}
+                onPress={() => setTheme(opt.value)}
                 style={[
                   styles.themeBtn,
                   { borderColor: colors.border, backgroundColor: colors.surface },
@@ -77,7 +79,7 @@ export default function SettingsScreen() {
                 ]}
               >
                 <Ionicons
-                  name={t.icon}
+                  name={opt.icon}
                   size={20}
                   color={active ? colors.primary : colors.textSecondary}
                 />
@@ -87,7 +89,7 @@ export default function SettingsScreen() {
                     { color: active ? colors.primary : colors.text },
                   ]}
                 >
-                  {t.label}
+                  {t(opt.labelKey)}
                 </Text>
               </Pressable>
             );
@@ -95,7 +97,7 @@ export default function SettingsScreen() {
         </View>
       </Section>
 
-      <Section title="Начало недели">
+      <Section title={t('settings:sectionWeek')}>
         <View style={styles.row}>
           {WEEK_OPTIONS.map((w) => {
             const active = settings.weekStartsOn === w.value;
@@ -115,7 +117,7 @@ export default function SettingsScreen() {
                     { color: active ? '#fff' : colors.text },
                   ]}
                 >
-                  {w.label}
+                  {t(w.labelKey)}
                 </Text>
               </Pressable>
             );
@@ -123,7 +125,7 @@ export default function SettingsScreen() {
         </View>
       </Section>
 
-      <Section title="Язык">
+      <Section title={t('settings:sectionLanguage')}>
         <View style={styles.row}>
           {LANGUAGE_OPTIONS.map((l) => {
             const active = settings.language === l.value;
@@ -143,7 +145,7 @@ export default function SettingsScreen() {
                     { color: active ? '#fff' : colors.text },
                   ]}
                 >
-                  {l.label}
+                  {t(l.labelKey)}
                 </Text>
               </Pressable>
             );
@@ -151,17 +153,17 @@ export default function SettingsScreen() {
         </View>
       </Section>
 
-      <Section title="Категории">
+      <Section title={t('settings:sectionCategories')}>
         <CategoriesEditor />
       </Section>
 
-      <Section title="Данные">
+      <Section title={t('settings:sectionData')}>
         <Pressable
           onPress={onExport}
           style={[styles.actionBtn, { borderColor: colors.border, backgroundColor: colors.surface }]}
         >
           <Ionicons name="share-outline" size={18} color={colors.text} />
-          <Text style={[styles.actionBtnText, { color: colors.text }]}>Экспорт в JSON</Text>
+          <Text style={[styles.actionBtnText, { color: colors.text }]}>{t('settings:exportJson')}</Text>
         </Pressable>
       </Section>
     </ScrollView>
@@ -171,6 +173,7 @@ export default function SettingsScreen() {
 function CategoriesEditor() {
   const { colors } = useTheme();
   const { state, addCategory, editCategory, deleteCategory } = useHabits();
+  const { t } = useTranslation();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [draftName, setDraftName] = useState('');
   const [draftColor, setDraftColor] = useState<string>(HABIT_COLORS[0]);
@@ -198,7 +201,7 @@ function CategoriesEditor() {
   const onSave = () => {
     const name = draftName.trim();
     if (!name) {
-      Alert.alert('Проверьте форму', 'Введите название');
+      Alert.alert(t('settings:categoryCheckForm'), t('settings:categoryNameRequired'));
       return;
     }
     if (editingId) {
@@ -212,13 +215,13 @@ function CategoriesEditor() {
   const onDelete = (id: string) => {
     const used = state.habits.some((h) => h.categoryId === id && !h.archived);
     if (used) {
-      Alert.alert('Нельзя удалить', 'Эта категория используется привычками');
+      Alert.alert(t('settings:categoryDeleteUsedTitle'), t('settings:categoryDeleteUsedBody'));
       return;
     }
     const cat = state.categories.find((c) => c.id === id);
-    Alert.alert('Удалить категорию?', cat?.name ?? '', [
-      { text: 'Отмена', style: 'cancel' },
-      { text: 'Удалить', style: 'destructive', onPress: () => deleteCategory(id) },
+    Alert.alert(t('settings:categoryDeleteConfirm'), cat?.name ?? '', [
+      { text: t('common:cancel'), style: 'cancel' },
+      { text: t('common:delete'), style: 'destructive', onPress: () => deleteCategory(id) },
     ]);
   };
 
@@ -255,7 +258,7 @@ function CategoriesEditor() {
           <TextInput
             value={draftName}
             onChangeText={setDraftName}
-            placeholder="Название категории"
+            placeholder={t('settings:categoryNamePlaceholder')}
             placeholderTextColor={colors.textMuted}
             style={[
               styles.input,
@@ -300,14 +303,14 @@ function CategoriesEditor() {
               onPress={() => setShowForm(false)}
               style={[styles.smallBtn, { borderColor: colors.border }]}
             >
-              <Text style={[styles.smallBtnText, { color: colors.text }]}>Отмена</Text>
+              <Text style={[styles.smallBtnText, { color: colors.text }]}>{t('common:cancel')}</Text>
             </Pressable>
             <Pressable
               onPress={onSave}
               style={[styles.smallBtn, { backgroundColor: colors.primary, borderColor: colors.primary }]}
             >
               <Text style={[styles.smallBtnText, { color: '#fff' }]}>
-                {editingId ? 'Сохранить' : 'Добавить'}
+                {editingId ? t('settings:categoryEditSave') : t('settings:categoryEditAdd')}
               </Text>
             </Pressable>
           </View>
@@ -318,7 +321,7 @@ function CategoriesEditor() {
           style={[styles.addBtn, { borderColor: colors.border }]}
         >
           <Ionicons name="add" size={18} color={colors.text} />
-          <Text style={[styles.addBtnText, { color: colors.text }]}>Добавить категорию</Text>
+          <Text style={[styles.addBtnText, { color: colors.text }]}>{t('settings:categoryAddBtn')}</Text>
         </Pressable>
       )}
     </View>

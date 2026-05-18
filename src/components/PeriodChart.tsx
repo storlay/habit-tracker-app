@@ -1,5 +1,6 @@
 import { matchFont } from '@shopify/react-native-skia';
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Bar, CartesianChart, Line } from 'victory-native';
 import { useTheme } from '../context/SettingsContext';
@@ -22,6 +23,7 @@ type Props = {
 
 export function PeriodChart({ habit, entries, period, onChangePeriod }: Props) {
   const { colors } = useTheme();
+  const { t } = useTranslation('stats');
   const data = useMemo(
     () => aggregate(habit, entries, period).map((b, i) => ({ i, value: b.value, label: b.label })),
     [habit, entries, period],
@@ -86,7 +88,7 @@ export function PeriodChart({ habit, entries, period, onChangePeriod }: Props) {
           </CartesianChart>
         ) : (
           <Text style={[styles.empty, { color: colors.textMuted }]}>
-            За этот период нет данных
+            {t('noPeriodData')}
           </Text>
         )}
       </View>

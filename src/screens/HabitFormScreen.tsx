@@ -2,6 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { format } from 'date-fns';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Alert,
   Platform,
@@ -24,10 +25,10 @@ import { requestPermissions } from '../utils/notifications';
 import { DOW_SHORT } from '../utils/stats';
 import { validateDraft } from '../utils/validation';
 
-const TYPES: { value: HabitType; label: string }[] = [
-  { value: 'binary', label: 'Да/нет' },
-  { value: 'counter', label: 'Счётчик' },
-  { value: 'duration', label: 'Время' },
+const TYPE_KEYS: { value: HabitType; labelKey: string }[] = [
+  { value: 'binary', labelKey: 'form:typeBinary' },
+  { value: 'counter', labelKey: 'form:typeCounter' },
+  { value: 'duration', labelKey: 'form:typeDuration' },
 ];
 
 const DAY_OPTIONS: { label: string; value: number }[] = [1, 2, 3, 4, 5, 6, 0].map((v) => ({
@@ -44,6 +45,7 @@ function initialTime(reminder: { hour: number; minute: number } | undefined): Da
 export default function HabitFormScreen({ route, navigation }: HabitFormProps) {
   const { state, addHabit, editHabit, archiveHabit } = useHabits();
   const { colors } = useTheme();
+  const { t } = useTranslation();
   const editingId = route.params?.habitId;
   const editing = editingId ? state.habits.find((h) => h.id === editingId) : undefined;
 
@@ -69,7 +71,7 @@ export default function HabitFormScreen({ route, navigation }: HabitFormProps) {
     if (next) {
       const ok = await requestPermissions();
       if (!ok) {
-        Alert.alert('Нет разрешения', 'Разрешите уведомления в настройках устройства');
+        Alert.alert(t('form:noPermissionTitle'), t('form:noPermissionBody'));
         return;
       }
     }
@@ -84,7 +86,7 @@ export default function HabitFormScreen({ route, navigation }: HabitFormProps) {
 
   const onSave = async () => {
     if (reminderEnabled && reminderDays.length === 0) {
-      Alert.alert('Проверьте форму', 'Выберите хотя бы один день для напоминания');
+      Alert.alert(t('form:checkFormTitle'), t('form:selectDay'));
       return;
     }
     const parsedTarget = target.trim() ? Number(target) : undefined;
@@ -108,7 +110,7 @@ export default function HabitFormScreen({ route, navigation }: HabitFormProps) {
     };
     const err = validateDraft(draft);
     if (err) {
-      Alert.alert('Проверьте форму', err);
+      Alert.alert(t('form:checkFormTitle'), err);
       return;
     }
     setSaving(true);
@@ -118,7 +120,7 @@ export default function HabitFormScreen({ route, navigation }: HabitFormProps) {
       } else {
         const id = await addHabit(draft);
         if (!id) {
-          Alert.alert('Ошибка', 'Не удалось сохранить');
+          Alert.alert(t('form:saveErrorTitle'), t('form:saveErrorBody'));
           return;
         }
       }
@@ -130,10 +132,10 @@ export default function HabitFormScreen({ route, navigation }: HabitFormProps) {
 
   const onArchive = () => {
     if (!editing) return;
-    Alert.alert('Архивировать привычку?', editing.title, [
-      { text: 'Отмена', style: 'cancel' },
+    Alert.alert(t('form:archiveTitle'), editing.title, [
+      { text: t('common:cancel'), style: 'cancel' },
       {
-        text: 'В архив',
+        text: t('form:archive'),
         style: 'destructive',
         onPress: () => {
           archiveHabit(editing.id);
@@ -153,25 +155,25 @@ export default function HabitFormScreen({ route, navigation }: HabitFormProps) {
       style={{ backgroundColor: colors.bg }}
       contentContainerStyle={styles.container}
     >
-      <Field label="Название">
+      <Field label={t('form:fieldTitle')}>
         <TextInput
           value={title}
           onChangeText={setTitle}
-          placeholder="Например, Пить воду"
+          placeholder={t('form:placeholderTitle')}
           placeholderTextColor={colors.textMuted}
           style={inputStyle}
           maxLength={60}
         />
       </Field>
 
-      <Field label="Тип">
+      <Field label={t('form:fieldType')}>
         <View style={styles.row}>
-          {TYPES.map((t) => (
+          {TYPE_KEYS.map((opt) => (
             <Chip
-              key={t.value}
-              label={t.label}
-              selected={type === t.value}
-              onPress={() => setType(t.value)}
+              key={opt.value}
+              label={t(opt.labelKey)}
+              selected={type === opt.value}
+              onPress={() => setType(opt.value)}
             />
           ))}
         </View>
@@ -179,7 +181,7 @@ export default function HabitFormScreen({ route, navigation }: HabitFormProps) {
 
       {type !== 'binary' ? (
         <>
-          <Field label="Цель">
+          <Field label={t('form:fieldTarget')}>
             <TextInput
               value={target}
               onChangeText={setTarget}
@@ -190,11 +192,11 @@ export default function HabitFormScreen({ route, navigation }: HabitFormProps) {
               maxLength={4}
             />
           </Field>
-          <Field label="Единица">
+          <Field label={t('form:fieldUnit')}>
             <TextInput
               value={unit}
               onChangeText={setUnit}
-              placeholder={type === 'counter' ? 'стаканов' : 'мин'}
+              placeholder={type === 'counter' ? t('form:placeholderCounter') : t('form:placeholderDuration')}
               placeholderTextColor={colors.textMuted}
               style={inputStyle}
               maxLength={20}
@@ -203,7 +205,7 @@ export default function HabitFormScreen({ route, navigation }: HabitFormProps) {
         </>
       ) : null}
 
-      <Field label="Категория">
+      <Field label={t('form:fieldCategory')}>
         <View style={styles.row}>
           {state.categories.map((c) => (
             <Chip
@@ -216,7 +218,7 @@ export default function HabitFormScreen({ route, navigation }: HabitFormProps) {
         </View>
       </Field>
 
-      <Field label="Цвет">
+      <Field label={t('form:fieldColor')}>
         <View style={styles.row}>
           {HABIT_COLORS.map((c) => (
             <Pressable
@@ -232,7 +234,7 @@ export default function HabitFormScreen({ route, navigation }: HabitFormProps) {
         </View>
       </Field>
 
-      <Field label="Иконка">
+      <Field label={t('form:fieldIcon')}>
         <View style={styles.row}>
           {HABIT_ICONS.map((name) => (
             <Pressable
@@ -254,7 +256,7 @@ export default function HabitFormScreen({ route, navigation }: HabitFormProps) {
         </View>
       </Field>
 
-      <Field label={`Дней в неделю: ${weeklyGoal}`}>
+      <Field label={t('form:fieldWeekly', { count: weeklyGoal })}>
         <View style={styles.row}>
           {[1, 2, 3, 4, 5, 6, 7].map((n) => (
             <Chip
@@ -269,7 +271,7 @@ export default function HabitFormScreen({ route, navigation }: HabitFormProps) {
 
       <View style={styles.field}>
         <View style={styles.reminderHeader}>
-          <Text style={[styles.label, { color: colors.textSecondary }]}>Напоминание</Text>
+          <Text style={[styles.label, { color: colors.textSecondary }]}>{t('form:fieldReminder')}</Text>
           <Switch value={reminderEnabled} onValueChange={onToggleReminder} />
         </View>
         {reminderEnabled ? (
@@ -325,12 +327,12 @@ export default function HabitFormScreen({ route, navigation }: HabitFormProps) {
         disabled={saving}
         style={[styles.saveBtn, { backgroundColor: color, opacity: saving ? 0.6 : 1 }]}
       >
-        <Text style={styles.saveBtnText}>{editing ? 'Сохранить' : 'Создать'}</Text>
+        <Text style={styles.saveBtnText}>{editing ? t('form:save') : t('form:create')}</Text>
       </Pressable>
 
       {editing ? (
         <Pressable onPress={onArchive} style={styles.archiveBtn}>
-          <Text style={[styles.archiveBtnText, { color: colors.danger }]}>В архив</Text>
+          <Text style={[styles.archiveBtnText, { color: colors.danger }]}>{t('form:archive')}</Text>
         </Pressable>
       ) : null}
     </ScrollView>

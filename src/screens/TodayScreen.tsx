@@ -1,6 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import type { TFunction } from 'i18next';
+import { useTranslation } from 'react-i18next';
 import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
 import { HabitCard } from '../components/HabitCard';
 import { ProgressRing } from '../components/ProgressRing';
@@ -15,12 +17,13 @@ export default function TodayScreen() {
   const { state, setEntry, archiveHabit } = useHabits();
   const { colors } = useTheme();
   const navigation = useNavigation<Nav>();
+  const { t } = useTranslation();
   const today = todayISO();
 
   if (!state.hydrated) {
     return (
       <View style={[styles.center, { backgroundColor: colors.bg }]}>
-        <Text style={{ color: colors.text }}>Загрузка…</Text>
+        <Text style={{ color: colors.text }}>{t('common:loading')}</Text>
       </View>
     );
   }
@@ -41,9 +44,9 @@ export default function TodayScreen() {
           </Text>
         </ProgressRing>
         <View style={styles.headerText}>
-          <Text style={[styles.title, { color: colors.text }]}>Сегодня</Text>
+          <Text style={[styles.title, { color: colors.text }]}>{t('today:title')}</Text>
           <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-            {subtitleFor(total, done)}
+            {subtitleFor(total, done, t)}
           </Text>
         </View>
         <Pressable
@@ -61,7 +64,7 @@ export default function TodayScreen() {
         contentContainerStyle={styles.list}
         ListEmptyComponent={
           <Text style={[styles.empty, { color: colors.textMuted }]}>
-            Пока пусто. Нажмите «+» чтобы добавить.
+            {t('today:emptyState')}
           </Text>
         }
         renderItem={({ item }) => (
@@ -78,10 +81,10 @@ export default function TodayScreen() {
   );
 }
 
-function subtitleFor(total: number, done: number): string {
-  if (total === 0) return 'Добавьте первую привычку';
-  if (done === total) return 'Все привычки выполнены!';
-  return `Осталось ${total - done}`;
+function subtitleFor(total: number, done: number, t: TFunction): string {
+  if (total === 0) return t('today:subtitleEmpty');
+  if (done === total) return t('today:subtitleAllDone');
+  return t('today:subtitleRemaining', { count: total - done });
 }
 
 const styles = StyleSheet.create({

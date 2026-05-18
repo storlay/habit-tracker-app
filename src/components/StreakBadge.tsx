@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text, View } from 'react-native';
 import { useTheme } from '../context/SettingsContext';
 import { withAlpha } from '../utils/color';
@@ -11,6 +12,7 @@ type Props = {
 
 export function StreakBadge({ current, best, color }: Props) {
   const { colors } = useTheme();
+  const { t } = useTranslation();
   return (
     <View style={styles.row}>
       <View
@@ -21,10 +23,10 @@ export function StreakBadge({ current, best, color }: Props) {
       >
         <View style={styles.head}>
           <Ionicons name="flame" size={16} color={color} />
-          <Text style={[styles.caption, { color: colors.textSecondary }]}>Сейчас</Text>
+          <Text style={[styles.caption, { color: colors.textSecondary }]}>{t('stats:streakNow')}</Text>
         </View>
         <Text style={[styles.value, { color: colors.text }]}>{current}</Text>
-        <Text style={[styles.unit, { color: colors.textSecondary }]}>{dayWord(current)}</Text>
+        <Text style={[styles.unit, { color: colors.textSecondary }]}>{t('common:dayNoun', { count: current })}</Text>
       </View>
       <View
         style={[
@@ -34,22 +36,13 @@ export function StreakBadge({ current, best, color }: Props) {
       >
         <View style={styles.head}>
           <Ionicons name="trophy" size={16} color={colors.warning} />
-          <Text style={[styles.caption, { color: colors.textSecondary }]}>Лучший</Text>
+          <Text style={[styles.caption, { color: colors.textSecondary }]}>{t('stats:streakBest')}</Text>
         </View>
         <Text style={[styles.value, { color: colors.text }]}>{best}</Text>
-        <Text style={[styles.unit, { color: colors.textSecondary }]}>{dayWord(best)}</Text>
+        <Text style={[styles.unit, { color: colors.textSecondary }]}>{t('common:dayNoun', { count: best })}</Text>
       </View>
     </View>
   );
-}
-
-function dayWord(n: number): string {
-  const m = n % 10;
-  const t = n % 100;
-  if (t >= 11 && t <= 14) return 'дней';
-  if (m === 1) return 'день';
-  if (m >= 2 && m <= 4) return 'дня';
-  return 'дней';
 }
 
 const styles = StyleSheet.create({

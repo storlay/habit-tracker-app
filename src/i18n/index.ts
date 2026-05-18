@@ -18,10 +18,24 @@ export function detectSystemLanguage(): SupportedLanguage {
     : FALLBACK;
 }
 
+export const NAMESPACES = [
+  'common',
+  'navigation',
+  'today',
+  'stats',
+  'form',
+  'settings',
+  'validation',
+  'notifications',
+  'categories',
+] as const;
+
 void i18n.use(initReactI18next).init({
   resources: { ru: ru, en: en, es: es, de: de },
   lng: detectSystemLanguage(),
   fallbackLng: FALLBACK,
+  ns: NAMESPACES as unknown as string[],
+  defaultNS: 'common',
   compatibilityJSON: 'v4',
   interpolation: { escapeValue: false },
   returnNull: false,

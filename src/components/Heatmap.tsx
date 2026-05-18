@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import Svg, { Rect, Text as SvgText } from 'react-native-svg';
 import { useSettings, useTheme } from '../context/SettingsContext';
@@ -129,10 +130,11 @@ function Tooltip({
   habit: Habit;
 }) {
   const { colors } = useTheme();
+  const { t } = useTranslation('stats');
   if (!selected) {
     return (
       <Text style={[styles.tooltipHint, { color: colors.textMuted }]}>
-        Нажмите ячейку, чтобы увидеть детали
+        {t('tooltipHint')}
       </Text>
     );
   }
@@ -142,8 +144,8 @@ function Tooltip({
   const valueLabel =
     habit.type === 'binary'
       ? value > 0
-        ? 'выполнено'
-        : 'нет'
+        ? t('binaryDone')
+        : t('binaryNone')
       : `${value}/${target}${habit.unit ? ' ' + habit.unit : ''}`;
   return (
     <Text style={[styles.tooltip, { color: colors.text }]}>

@@ -8,6 +8,7 @@ import {
 } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { IoniconName } from '../constants/icons';
 import { useTheme } from '../context/SettingsContext';
 import HabitFormScreen from '../screens/HabitFormScreen';
@@ -27,6 +28,7 @@ const ICONS: Record<string, IoniconName> = {
 
 function Tabs() {
   const { colors } = useTheme();
+  const { t } = useTranslation('navigation');
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -41,15 +43,16 @@ function Tabs() {
         headerShadowVisible: false,
       })}
     >
-      <Tab.Screen name="Today" component={TodayScreen} options={{ title: 'Сегодня' }} />
-      <Tab.Screen name="Stats" component={StatsScreen} options={{ title: 'Статистика' }} />
-      <Tab.Screen name="Settings" component={SettingsScreen} options={{ title: 'Настройки' }} />
+      <Tab.Screen name="Today" component={TodayScreen} options={{ title: t('today') }} />
+      <Tab.Screen name="Stats" component={StatsScreen} options={{ title: t('stats') }} />
+      <Tab.Screen name="Settings" component={SettingsScreen} options={{ title: t('settings') }} />
     </Tab.Navigator>
   );
 }
 
 export default function RootNavigation() {
   const { theme, colors } = useTheme();
+  const { t } = useTranslation('navigation');
   const navTheme = useMemo<Theme>(() => {
     const base = theme === 'dark' ? DarkTheme : DefaultTheme;
     return {
@@ -80,7 +83,7 @@ export default function RootNavigation() {
         <Stack.Screen
           name="HabitForm"
           component={HabitFormScreen}
-          options={{ presentation: 'modal', title: 'Привычка' }}
+          options={{ presentation: 'modal', title: t('habit') }}
         />
       </Stack.Navigator>
     </NavigationContainer>
