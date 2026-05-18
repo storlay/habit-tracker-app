@@ -104,5 +104,10 @@
     "reminderBody": "Zeit, deine Gewohnheit zu notieren",
     "androidChannelName": "Gewohnheits-Erinnerungen"
   },
-  "categories": {}
+  "categories": {
+    "health": "Gesundheit",
+    "mind": "Geist",
+    "sport": "Sport",
+    "work": "Arbeit"
+  }
 }

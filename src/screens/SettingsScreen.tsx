@@ -16,6 +16,7 @@ import { HABIT_ICONS, type IoniconName } from '../constants/icons';
 import { useHabits } from '../context/HabitsContext';
 import { useSettings, useTheme } from '../context/SettingsContext';
 import type { Settings } from '../types';
+import { categoryLabel } from '../utils/category';
 import { withAlpha } from '../utils/color';
 import { exportPayload } from '../utils/exporter';
 
@@ -184,7 +185,7 @@ function CategoriesEditor() {
     const cat = state.categories.find((c) => c.id === id);
     if (!cat) return;
     setEditingId(id);
-    setDraftName(cat.name);
+    setDraftName(categoryLabel(cat, t));
     setDraftColor(cat.color);
     setDraftIcon(cat.icon);
     setShowForm(true);
@@ -205,7 +206,7 @@ function CategoriesEditor() {
       return;
     }
     if (editingId) {
-      editCategory(editingId, { name, color: draftColor, icon: draftIcon });
+      editCategory(editingId, { name, nameKey: undefined, color: draftColor, icon: draftIcon });
     } else {
       addCategory({ name, color: draftColor, icon: draftIcon });
     }
@@ -219,7 +220,7 @@ function CategoriesEditor() {
       return;
     }
     const cat = state.categories.find((c) => c.id === id);
-    Alert.alert(t('settings:categoryDeleteConfirm'), cat?.name ?? '', [
+    Alert.alert(t('settings:categoryDeleteConfirm'), cat ? categoryLabel(cat, t) : '', [
       { text: t('common:cancel'), style: 'cancel' },
       { text: t('common:delete'), style: 'destructive', onPress: () => deleteCategory(id) },
     ]);
@@ -238,7 +239,7 @@ function CategoriesEditor() {
           <View style={[styles.catIcon, { backgroundColor: withAlpha(c.color, 0.13) }]}>
             <Ionicons name={c.icon} size={18} color={c.color} />
           </View>
-          <Text style={[styles.catName, { color: colors.text }]}>{c.name}</Text>
+          <Text style={[styles.catName, { color: colors.text }]}>{categoryLabel(c, t)}</Text>
           <Pressable onPress={() => beginEdit(c.id)} hitSlop={8} style={styles.catAction}>
             <Ionicons name="pencil" size={18} color={colors.textSecondary} />
           </Pressable>

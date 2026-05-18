@@ -32,7 +32,7 @@ function pickSettings(s: Settings): Settings {
 }
 
 function pickCategory(c: Category): Category {
-  return { id: c.id, name: c.name, color: c.color, icon: c.icon };
+  return { id: c.id, name: c.name, nameKey: c.nameKey, color: c.color, icon: c.icon };
 }
 
 function pickHabit(h: Habit): Habit {

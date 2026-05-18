@@ -104,5 +104,10 @@
     "reminderBody": "Es hora de marcar tu hábito",
     "androidChannelName": "Recordatorios de hábitos"
   },
-  "categories": {}
+  "categories": {
+    "health": "Salud",
+    "mind": "Mente",
+    "sport": "Deporte",
+    "work": "Trabajo"
+  }
 }

@@ -108,5 +108,10 @@
     "reminderBody": "Время отметить привычку",
     "androidChannelName": "Напоминания о привычках"
   },
-  "categories": {}
+  "categories": {
+    "health": "Здоровье",
+    "mind": "Разум",
+    "sport": "Спорт",
+    "work": "Работа"
+  }
 }

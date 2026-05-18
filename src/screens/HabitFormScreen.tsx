@@ -20,6 +20,7 @@ import { useHabits } from '../context/HabitsContext';
 import { useTheme } from '../context/SettingsContext';
 import type { HabitFormProps } from '../navigation/types';
 import type { HabitDraft, HabitType } from '../types';
+import { categoryLabel } from '../utils/category';
 import { withAlpha } from '../utils/color';
 import { requestPermissions } from '../utils/notifications';
 import { validateDraft } from '../utils/validation';
@@ -206,7 +207,7 @@ export default function HabitFormScreen({ route, navigation }: HabitFormProps) {
           {state.categories.map((c) => (
             <Chip
               key={c.id}
-              label={c.name}
+              label={categoryLabel(c, t)}
               selected={categoryId === c.id}
               onPress={() => setCategoryId(c.id)}
             />
