@@ -4,7 +4,8 @@
     "cancel": "Cancelar",
     "delete": "Eliminar",
     "dayNoun_one": "día",
-    "dayNoun_other": "días"
+    "dayNoun_other": "días",
+    "weekdaysShort": ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"]
   },
   "navigation": {
     "today": "Hoy",

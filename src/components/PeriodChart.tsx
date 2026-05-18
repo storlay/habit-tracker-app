@@ -25,8 +25,8 @@ export function PeriodChart({ habit, entries, period, onChangePeriod }: Props) {
   const { colors } = useTheme();
   const { t } = useTranslation('stats');
   const data = useMemo(
-    () => aggregate(habit, entries, period).map((b, i) => ({ i, value: b.value, label: b.label })),
-    [habit, entries, period],
+    () => aggregate(habit, entries, period, t).map((b, i) => ({ i, value: b.value, label: b.label })),
+    [habit, entries, period, t],
   );
 
   const isLine = habit.type !== 'binary';

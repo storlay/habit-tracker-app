@@ -1,6 +1,14 @@
-import { addDays, format, parseISO, subDays } from 'date-fns';
+import { addDays, format, parseISO, subDays, type Locale } from 'date-fns';
+import { de, enUS, es, ru } from 'date-fns/locale';
+import i18n from '../i18n';
 
 export type ISODate = string;
+
+const LOCALES: Record<string, Locale> = { ru, en: enUS, es, de };
+
+export function getDateFnsLocale(): Locale {
+  return LOCALES[i18n.language] ?? ru;
+}
 
 export function todayISO(date: Date = new Date()): ISODate {
   return format(date, 'yyyy-MM-dd');
@@ -25,5 +33,5 @@ export function weekdayIndex(iso: ISODate): number {
 }
 
 export function monthShort(iso: ISODate): string {
-  return format(parseISO(iso), 'LLL');
+  return format(parseISO(iso), 'LLL', { locale: getDateFnsLocale() });
 }

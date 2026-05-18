@@ -4,7 +4,8 @@
     "cancel": "Cancel",
     "delete": "Delete",
     "dayNoun_one": "day",
-    "dayNoun_other": "days"
+    "dayNoun_other": "days",
+    "weekdaysShort": ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
   },
   "navigation": {
     "today": "Today",

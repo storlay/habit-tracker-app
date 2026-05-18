@@ -22,7 +22,6 @@ import type { HabitFormProps } from '../navigation/types';
 import type { HabitDraft, HabitType } from '../types';
 import { withAlpha } from '../utils/color';
 import { requestPermissions } from '../utils/notifications';
-import { DOW_SHORT } from '../utils/stats';
 import { validateDraft } from '../utils/validation';
 
 const TYPE_KEYS: { value: HabitType; labelKey: string }[] = [
@@ -31,10 +30,7 @@ const TYPE_KEYS: { value: HabitType; labelKey: string }[] = [
   { value: 'duration', labelKey: 'form:typeDuration' },
 ];
 
-const DAY_OPTIONS: { label: string; value: number }[] = [1, 2, 3, 4, 5, 6, 0].map((v) => ({
-  label: DOW_SHORT[v],
-  value: v,
-}));
+const DAY_VALUES = [1, 2, 3, 4, 5, 6, 0] as const;
 
 function initialTime(reminder: { hour: number; minute: number } | undefined): Date {
   const d = new Date();
@@ -309,12 +305,12 @@ export default function HabitFormScreen({ route, navigation }: HabitFormProps) {
               </>
             )}
             <View style={styles.row}>
-              {DAY_OPTIONS.map((d) => (
+              {DAY_VALUES.map((d) => (
                 <Chip
-                  key={d.value}
-                  label={d.label}
-                  selected={reminderDays.includes(d.value)}
-                  onPress={() => toggleDay(d.value)}
+                  key={d}
+                  label={t(`common:weekdaysShort.${d}`)}
+                  selected={reminderDays.includes(d)}
+                  onPress={() => toggleDay(d)}
                 />
               ))}
             </View>

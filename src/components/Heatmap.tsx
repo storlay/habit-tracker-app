@@ -5,7 +5,7 @@ import Svg, { Rect, Text as SvgText } from 'react-native-svg';
 import { useSettings, useTheme } from '../context/SettingsContext';
 import type { Entry, Habit } from '../types';
 import { withAlpha } from '../utils/color';
-import { addDaysISO, subDaysISO, todayISO, weekdayIndex, type ISODate } from '../utils/date';
+import { addDaysISO, monthShort, subDaysISO, todayISO, weekdayIndex, type ISODate } from '../utils/date';
 import { intensityLevel } from '../utils/stats';
 
 const WEEKS = 53;
@@ -14,10 +14,6 @@ const GAP = 3;
 const STEP = CELL + GAP;
 const LEFT_LABEL_W = 22;
 const TOP_LABEL_H = 16;
-
-const MONTHS = ['янв', 'фев', 'мар', 'апр', 'май', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'];
-const ROW_LABELS_SUN = ['', 'Пн', '', 'Ср', '', 'Пт', ''];
-const ROW_LABELS_MON = ['Пн', '', 'Ср', '', 'Пт', '', ''];
 
 type Props = {
   habit: Habit;
@@ -29,6 +25,7 @@ type Cell = { date: ISODate; week: number; row: number; level: 0 | 1 | 2 | 3 | 4
 export function Heatmap({ habit, entries }: Props) {
   const { colors } = useTheme();
   const { settings } = useSettings();
+  const { t, i18n } = useTranslation();
   const weekStartsOn = settings.weekStartsOn;
   const [selected, setSelected] = useState<Cell | null>(null);
 
@@ -46,7 +43,7 @@ export function Heatmap({ habit, entries }: Props) {
       const firstDayOfCol = addDaysISO(oldestStart, week * 7);
       const month = Number(firstDayOfCol.slice(5, 7)) - 1;
       if (month !== lastMonth) {
-        labels.push({ week, label: MONTHS[month] });
+        labels.push({ week, label: monthShort(firstDayOfCol) });
         lastMonth = month;
       }
       for (let row = 0; row < 7; row++) {
@@ -57,9 +54,12 @@ export function Heatmap({ habit, entries }: Props) {
       }
     }
     return { cells: cs, monthLabels: labels };
-  }, [habit.type, habit.target, entries, weekStartsOn]);
+  }, [habit.type, habit.target, entries, weekStartsOn, i18n.language]);
 
-  const rowLabels = weekStartsOn === 1 ? ROW_LABELS_MON : ROW_LABELS_SUN;
+  const rowLabels = Array.from({ length: 7 }, (_, row) => {
+    const dow = (row + weekStartsOn) % 7;
+    return dow === 1 || dow === 3 || dow === 5 ? t(`common:weekdaysShort.${dow}`) : '';
+  });
 
   const gridW = WEEKS * STEP;
   const gridH = 7 * STEP;

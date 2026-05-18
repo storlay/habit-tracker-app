@@ -6,7 +6,8 @@
     "dayNoun_one": "день",
     "dayNoun_few": "дня",
     "dayNoun_many": "дней",
-    "dayNoun_other": "дней"
+    "dayNoun_other": "дней",
+    "weekdaysShort": ["Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"]
   },
   "navigation": {
     "today": "Сегодня",

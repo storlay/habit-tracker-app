@@ -1,3 +1,4 @@
+import type { TFunction } from 'i18next';
 import type { Entry, Habit } from '../types';
 import {
   lastNDaysISO,
@@ -65,22 +66,25 @@ export function periodDays(period: Period): number {
   return PERIOD_DAYS[period];
 }
 
-export const DOW_SHORT = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
-
-export function aggregate(habit: Habit, entries: EntriesByDate, period: Period): BucketPoint[] {
+export function aggregate(
+  habit: Habit,
+  entries: EntriesByDate,
+  period: Period,
+  t: TFunction,
+): BucketPoint[] {
   const days = lastNDaysISO(PERIOD_DAYS[period]);
-  if (period === '7d') return days.map((d) => bucketOfDay(d, entries, habit));
+  if (period === '7d') return days.map((d) => bucketOfDay(d, entries, habit, t));
   if (period === '30d') return groupByWeek(days, entries, habit);
   if (period === '90d') return groupByWeek(days, entries, habit);
   return groupByMonth(days, entries, habit);
 }
 
-function bucketOfDay(d: ISODate, entries: EntriesByDate, habit: Habit): BucketPoint {
+function bucketOfDay(d: ISODate, entries: EntriesByDate, habit: Habit, t: TFunction): BucketPoint {
   const e = entries[d];
   const value = e?.value ?? 0;
   const target = habit.type === 'binary' ? 1 : (habit.target ?? 1);
   return {
-    label: DOW_SHORT[weekdayIndex(d)],
+    label: t(`common:weekdaysShort.${weekdayIndex(d)}`),
     value,
     rate: Math.min(1, value / target),
   };
