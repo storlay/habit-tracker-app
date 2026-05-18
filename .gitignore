@@ -41,7 +41,3 @@ yarn-error.*
 
 # WebStorm IDE
 .idea
-
-
-# Claude Code Spec
-SPEC.md
