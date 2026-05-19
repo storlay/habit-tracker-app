@@ -1,9 +1,8 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import type { TFunction } from 'i18next';
-import { useTranslation } from 'react-i18next';
 import { FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
+import { tx, useT, type AppT } from '../i18n/useT';
 import { HabitCard } from '../components/HabitCard';
 import { ProgressRing } from '../components/ProgressRing';
 import { useHabits } from '../context/HabitsContext';
@@ -17,7 +16,7 @@ export default function TodayScreen() {
   const { state, setEntry, archiveHabit } = useHabits();
   const { colors } = useTheme();
   const navigation = useNavigation<Nav>();
-  const { t } = useTranslation();
+  const { t } = useT();
   const today = todayISO();
 
   if (!state.hydrated) {
@@ -81,10 +80,10 @@ export default function TodayScreen() {
   );
 }
 
-function subtitleFor(total: number, done: number, t: TFunction): string {
+function subtitleFor(total: number, done: number, t: AppT): string {
   if (total === 0) return t('today:subtitleEmpty');
   if (done === total) return t('today:subtitleAllDone');
-  return t('today:subtitleRemaining', { count: total - done });
+  return tx(t, 'today:subtitleRemaining', { count: total - done });
 }
 
 const styles = StyleSheet.create({

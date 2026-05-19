@@ -1,6 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import {
   Alert,
   Pressable,
@@ -15,6 +14,7 @@ import { HABIT_COLORS } from '../constants/colors';
 import { HABIT_ICONS, type IoniconName } from '../constants/icons';
 import { useHabits } from '../context/HabitsContext';
 import { useSettings, useTheme } from '../context/SettingsContext';
+import { tx, useT } from '../i18n/useT';
 import type { Settings } from '../types';
 import { categoryLabel } from '../utils/category';
 import { withAlpha } from '../utils/color';
@@ -43,7 +43,7 @@ export default function SettingsScreen() {
   const { colors } = useTheme();
   const { settings, setTheme, setWeekStartsOn, setLanguage } = useSettings();
   const { state } = useHabits();
-  const { t } = useTranslation();
+  const { t } = useT();
 
   const onExport = async () => {
     try {
@@ -90,7 +90,7 @@ export default function SettingsScreen() {
                     { color: active ? colors.primary : colors.text },
                   ]}
                 >
-                  {t(opt.labelKey)}
+                  {tx(t, opt.labelKey)}
                 </Text>
               </Pressable>
             );
@@ -118,7 +118,7 @@ export default function SettingsScreen() {
                     { color: active ? '#fff' : colors.text },
                   ]}
                 >
-                  {t(w.labelKey)}
+                  {tx(t, w.labelKey)}
                 </Text>
               </Pressable>
             );
@@ -146,7 +146,7 @@ export default function SettingsScreen() {
                     { color: active ? '#fff' : colors.text },
                   ]}
                 >
-                  {t(l.labelKey)}
+                  {tx(t, l.labelKey)}
                 </Text>
               </Pressable>
             );
@@ -174,7 +174,7 @@ export default function SettingsScreen() {
 function CategoriesEditor() {
   const { colors } = useTheme();
   const { state, addCategory, editCategory, deleteCategory } = useHabits();
-  const { t } = useTranslation();
+  const { t } = useT();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [draftName, setDraftName] = useState('');
   const [draftColor, setDraftColor] = useState<string>(HABIT_COLORS[0]);

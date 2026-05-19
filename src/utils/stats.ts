@@ -1,4 +1,4 @@
-import type { TFunction } from 'i18next';
+import { tx, type AppT } from '../i18n/useT';
 import type { Entry, Habit } from '../types';
 import {
   lastNDaysISO,
@@ -70,7 +70,7 @@ export function aggregate(
   habit: Habit,
   entries: EntriesByDate,
   period: Period,
-  t: TFunction,
+  t: AppT,
 ): BucketPoint[] {
   const days = lastNDaysISO(PERIOD_DAYS[period]);
   if (period === '7d') return days.map((d) => bucketOfDay(d, entries, habit, t));
@@ -79,12 +79,12 @@ export function aggregate(
   return groupByMonth(days, entries, habit);
 }
 
-function bucketOfDay(d: ISODate, entries: EntriesByDate, habit: Habit, t: TFunction): BucketPoint {
+function bucketOfDay(d: ISODate, entries: EntriesByDate, habit: Habit, t: AppT): BucketPoint {
   const e = entries[d];
   const value = e?.value ?? 0;
   const target = habit.type === 'binary' ? 1 : (habit.target ?? 1);
   return {
-    label: t(`common:weekdaysShort.${weekdayIndex(d)}`),
+    label: tx(t, `common:weekdaysShort.${weekdayIndex(d)}`),
     value,
     rate: Math.min(1, value / target),
   };

@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useMemo, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useT } from '../i18n/useT';
 import { Heatmap } from '../components/Heatmap';
 import { PeriodChart } from '../components/PeriodChart';
 import { StreakBadge } from '../components/StreakBadge';
@@ -13,7 +13,7 @@ import { bestStreak, currentStreak, type Period } from '../utils/stats';
 export default function StatsScreen() {
   const { state } = useHabits();
   const { colors } = useTheme();
-  const { t } = useTranslation();
+  const { t } = useT();
   const active = state.habits.filter((h) => !h.archived);
 
   const [selectedId, setSelectedId] = useState<string | null>(null);

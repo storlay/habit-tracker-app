@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useTranslation } from 'react-i18next';
 import { StyleSheet, Text, View } from 'react-native';
 import { useTheme } from '../context/SettingsContext';
+import { useT } from '../i18n/useT';
 import { withAlpha } from '../utils/color';
 
 type Props = {
@@ -12,7 +12,7 @@ type Props = {
 
 export function StreakBadge({ current, best, color }: Props) {
   const { colors } = useTheme();
-  const { t } = useTranslation();
+  const { t } = useT();
   return (
     <View style={styles.row}>
       <View

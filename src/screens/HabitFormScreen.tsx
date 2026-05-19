@@ -2,7 +2,6 @@ import { Ionicons } from '@expo/vector-icons';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { format } from 'date-fns';
 import { useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import {
   Alert,
   Platform,
@@ -18,6 +17,7 @@ import { HABIT_COLORS } from '../constants/colors';
 import { HABIT_ICONS, type IoniconName } from '../constants/icons';
 import { useHabits } from '../context/HabitsContext';
 import { useTheme } from '../context/SettingsContext';
+import { tx, useT } from '../i18n/useT';
 import type { HabitFormProps } from '../navigation/types';
 import type { HabitDraft, HabitType } from '../types';
 import { categoryLabel } from '../utils/category';
@@ -42,7 +42,7 @@ function initialTime(reminder: { hour: number; minute: number } | undefined): Da
 export default function HabitFormScreen({ route, navigation }: HabitFormProps) {
   const { state, addHabit, editHabit, archiveHabit } = useHabits();
   const { colors } = useTheme();
-  const { t } = useTranslation();
+  const { t } = useT();
   const editingId = route.params?.habitId;
   const editing = editingId ? state.habits.find((h) => h.id === editingId) : undefined;
 
@@ -107,7 +107,7 @@ export default function HabitFormScreen({ route, navigation }: HabitFormProps) {
     };
     const err = validateDraft(draft);
     if (err) {
-      Alert.alert(t('form:checkFormTitle'), t(err));
+      Alert.alert(t('form:checkFormTitle'), tx(t, err));
       return;
     }
     setSaving(true);
@@ -168,7 +168,7 @@ export default function HabitFormScreen({ route, navigation }: HabitFormProps) {
           {TYPE_KEYS.map((opt) => (
             <Chip
               key={opt.value}
-              label={t(opt.labelKey)}
+              label={tx(t, opt.labelKey)}
               selected={type === opt.value}
               onPress={() => setType(opt.value)}
             />
@@ -309,7 +309,7 @@ export default function HabitFormScreen({ route, navigation }: HabitFormProps) {
               {DAY_VALUES.map((d) => (
                 <Chip
                   key={d}
-                  label={t(`common:weekdaysShort.${d}`)}
+                  label={tx(t, `common:weekdaysShort.${d}`)}
                   selected={reminderDays.includes(d)}
                   onPress={() => toggleDay(d)}
                 />

@@ -8,9 +8,9 @@ import {
 } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
 import type { IoniconName } from '../constants/icons';
 import { useTheme } from '../context/SettingsContext';
+import { useT } from '../i18n/useT';
 import HabitFormScreen from '../screens/HabitFormScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import StatsScreen from '../screens/StatsScreen';
@@ -28,7 +28,7 @@ const ICONS: Record<string, IoniconName> = {
 
 function Tabs() {
   const { colors } = useTheme();
-  const { t } = useTranslation('navigation');
+  const { t } = useT();
   return (
     <Tab.Navigator
       screenOptions={({ route }) => ({
@@ -43,16 +43,16 @@ function Tabs() {
         headerShadowVisible: false,
       })}
     >
-      <Tab.Screen name="Today" component={TodayScreen} options={{ title: t('today') }} />
-      <Tab.Screen name="Stats" component={StatsScreen} options={{ title: t('stats') }} />
-      <Tab.Screen name="Settings" component={SettingsScreen} options={{ title: t('settings') }} />
+      <Tab.Screen name="Today" component={TodayScreen} options={{ title: t('navigation:today') }} />
+      <Tab.Screen name="Stats" component={StatsScreen} options={{ title: t('navigation:stats') }} />
+      <Tab.Screen name="Settings" component={SettingsScreen} options={{ title: t('navigation:settings') }} />
     </Tab.Navigator>
   );
 }
 
 export default function RootNavigation() {
   const { theme, colors } = useTheme();
-  const { t } = useTranslation('navigation');
+  const { t } = useT();
   const navTheme = useMemo<Theme>(() => {
     const base = theme === 'dark' ? DarkTheme : DefaultTheme;
     return {
@@ -83,7 +83,7 @@ export default function RootNavigation() {
         <Stack.Screen
           name="HabitForm"
           component={HabitFormScreen}
-          options={{ presentation: 'modal', title: t('habit') }}
+          options={{ presentation: 'modal', title: t('navigation:habit') }}
         />
       </Stack.Navigator>
     </NavigationContainer>

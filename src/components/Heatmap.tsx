@@ -1,8 +1,8 @@
 import { useMemo, useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import Svg, { Rect, Text as SvgText } from 'react-native-svg';
 import { useSettings, useTheme } from '../context/SettingsContext';
+import { tx, useT } from '../i18n/useT';
 import type { Entry, Habit } from '../types';
 import { withAlpha } from '../utils/color';
 import { addDaysISO, monthShort, subDaysISO, todayISO, weekdayIndex, type ISODate } from '../utils/date';
@@ -25,7 +25,7 @@ type Cell = { date: ISODate; week: number; row: number; level: 0 | 1 | 2 | 3 | 4
 export function Heatmap({ habit, entries }: Props) {
   const { colors } = useTheme();
   const { settings } = useSettings();
-  const { t, i18n } = useTranslation();
+  const { t, i18n } = useT();
   const weekStartsOn = settings.weekStartsOn;
   const [selected, setSelected] = useState<Cell | null>(null);
 
@@ -58,7 +58,7 @@ export function Heatmap({ habit, entries }: Props) {
 
   const rowLabels = Array.from({ length: 7 }, (_, row) => {
     const dow = (row + weekStartsOn) % 7;
-    return dow === 1 || dow === 3 || dow === 5 ? t(`common:weekdaysShort.${dow}`) : '';
+    return dow === 1 || dow === 3 || dow === 5 ? tx(t, `common:weekdaysShort.${dow}`) : '';
   });
 
   const gridW = WEEKS * STEP;
@@ -130,11 +130,11 @@ function Tooltip({
   habit: Habit;
 }) {
   const { colors } = useTheme();
-  const { t } = useTranslation('stats');
+  const { t } = useT();
   if (!selected) {
     return (
       <Text style={[styles.tooltipHint, { color: colors.textMuted }]}>
-        {t('tooltipHint')}
+        {t('stats:tooltipHint')}
       </Text>
     );
   }
@@ -144,8 +144,8 @@ function Tooltip({
   const valueLabel =
     habit.type === 'binary'
       ? value > 0
-        ? t('binaryDone')
-        : t('binaryNone')
+        ? t('stats:binaryDone')
+        : t('stats:binaryNone')
       : `${value}/${target}${habit.unit ? ' ' + habit.unit : ''}`;
   return (
     <Text style={[styles.tooltip, { color: colors.text }]}>
